@@ -31,6 +31,7 @@ import { getKeygenApi } from '@/lib/api'
 import { Entitlement, Group, Policy, User } from '@/lib/types/keygen'
 import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
 import { toast } from 'sonner'
+import { parseOptionalNumber } from './utils'
 
 interface CreateLicenseDialogProps {
   onLicenseCreated?: () => void
@@ -39,6 +40,25 @@ interface CreateLicenseDialogProps {
   hideTrigger?: boolean
   trigger?: React.ReactNode
 }
+
+const getDefaultFormState = () => ({
+  name: '',
+  policyId: '',
+  userId: '',
+  groupId: '',
+  key: '',
+  protected: true,
+  suspended: false,
+  permissions: '',
+  expiry: undefined as Date | undefined,
+  maxUses: '',
+  maxMachines: '',
+  maxCores: '',
+  maxMemory: '',
+  maxDisk: '',
+  maxProcesses: '',
+  maxUsers: '',
+})
 
 export function CreateLicenseDialog({
   onLicenseCreated,
@@ -54,24 +74,7 @@ export function CreateLicenseDialog({
   const [groups, setGroups] = useState<Group[]>([])
   const [entitlements, setEntitlements] = useState<Entitlement[]>([])
   const [loadingData, setLoadingData] = useState(true)
-  const [formData, setFormData] = useState({
-    name: '',
-    policyId: '',
-    userId: '', // owner
-    groupId: '',
-    key: '',
-    protected: true,
-    suspended: false,
-    permissions: '',
-    expiry: undefined as Date | undefined,
-    maxUses: '',
-    maxMachines: '',
-    maxCores: '',
-    maxMemory: '',
-    maxDisk: '',
-    maxProcesses: '',
-    maxUsers: '',
-  })
+  const [formData, setFormData] = useState(getDefaultFormState)
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>([])
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [selectedEntitlements, setSelectedEntitlements] = useState<string[]>([])
@@ -82,24 +85,7 @@ export function CreateLicenseDialog({
   const dialogOpen = open ?? internalOpen
 
   const resetFormState = () => {
-    setFormData({
-      name: '',
-      policyId: '',
-      userId: '',
-      groupId: '',
-      key: '',
-      protected: true,
-      suspended: false,
-      permissions: '',
-      expiry: undefined,
-      maxUses: '',
-      maxMachines: '',
-      maxCores: '',
-      maxMemory: '',
-      maxDisk: '',
-      maxProcesses: '',
-      maxUsers: '',
-    })
+    setFormData(getDefaultFormState())
     setMetadata([])
     setSelectedUsers([])
     setSelectedEntitlements([])
@@ -142,12 +128,6 @@ export function CreateLicenseDialog({
       loadInitialData()
     }
   }, [dialogOpen, loadInitialData])
-
-  const parseOptionalNumber = (value: string) => {
-    if (!value || value.trim() === '') return undefined
-    const parsed = Number(value)
-    return Number.isNaN(parsed) ? undefined : parsed
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -204,27 +184,7 @@ export function CreateLicenseDialog({
 
       toast.success('License created successfully')
       handleOpenChange(false)
-      setFormData({
-        name: '',
-        policyId: '',
-        userId: '',
-        groupId: '',
-        key: '',
-        protected: true,
-        suspended: false,
-        permissions: '',
-        expiry: undefined,
-        maxUses: '',
-        maxMachines: '',
-        maxCores: '',
-        maxMemory: '',
-        maxDisk: '',
-        maxProcesses: '',
-        maxUsers: '',
-      })
-      setMetadata([])
-      setSelectedUsers([])
-      setSelectedEntitlements([])
+      resetFormState()
       onLicenseCreated?.()
     } catch (error: unknown) {
       handleFormError(error, 'License', {

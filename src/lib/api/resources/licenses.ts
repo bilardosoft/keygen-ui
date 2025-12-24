@@ -105,7 +105,7 @@ export class LicenseResource {
             data: { type: 'policies', id: policyId },
           },
           ...(userId && {
-            owner: {
+            user: {
               data: { type: 'users', id: userId },
             },
           }),

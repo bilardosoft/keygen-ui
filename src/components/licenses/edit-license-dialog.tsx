@@ -20,6 +20,7 @@ import type { LicenseAttributesInput } from '@/lib/api/resources/licenses'
 import { toast } from 'sonner'
 import { License } from '@/lib/types/keygen'
 import { handleCrudError } from '@/lib/utils/error-handling'
+import { parseOptionalNumber } from './utils'
 
 interface EditLicenseDialogProps {
   license: License
@@ -34,48 +35,31 @@ export function EditLicenseDialog({
   onOpenChange, 
   onLicenseUpdated 
 }: EditLicenseDialogProps) {
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    expiry: '',
-    maxUses: '',
-    maxMachines: '',
-    maxCores: '',
-    maxMemory: '',
-    maxDisk: '',
-    maxProcesses: '',
-    maxUsers: '',
-    protected: false,
-    suspended: false,
-    metadata: ''
+  const getInitialFormData = (current: License) => ({
+    name: current.attributes.name || '',
+    expiry: current.attributes.expiry ? current.attributes.expiry.split('T')[0] : '',
+    maxUses: current.attributes.maxUses?.toString() || '',
+    maxMachines: current.attributes.maxMachines?.toString() || '',
+    maxCores: current.attributes.maxCores?.toString() || '',
+    maxMemory: current.attributes.maxMemory?.toString() || '',
+    maxDisk: current.attributes.maxDisk?.toString() || '',
+    maxProcesses: current.attributes.maxProcesses?.toString() || '',
+    maxUsers: current.attributes.maxUsers?.toString() || '',
+    protected: Boolean(current.attributes.protected),
+    suspended: Boolean(current.attributes.suspended),
+    metadata: current.attributes.metadata ? JSON.stringify(current.attributes.metadata, null, 2) : ''
   })
+
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState(getInitialFormData(license))
   const api = getKeygenApi()
 
   // Initialize form data when dialog opens
   useEffect(() => {
     if (open && license) {
-      setFormData({
-        name: license.attributes.name || '',
-        expiry: license.attributes.expiry ? license.attributes.expiry.split('T')[0] : '', // Convert to date string
-        maxUses: license.attributes.maxUses?.toString() || '',
-        maxMachines: license.attributes.maxMachines?.toString() || '',
-        maxCores: license.attributes.maxCores?.toString() || '',
-        maxMemory: license.attributes.maxMemory?.toString() || '',
-        maxDisk: license.attributes.maxDisk?.toString() || '',
-        maxProcesses: license.attributes.maxProcesses?.toString() || '',
-        maxUsers: license.attributes.maxUsers?.toString() || '',
-        protected: Boolean(license.attributes.protected),
-        suspended: Boolean(license.attributes.suspended),
-        metadata: license.attributes.metadata ? JSON.stringify(license.attributes.metadata, null, 2) : ''
-      })
+      setFormData(getInitialFormData(license))
     }
   }, [open, license])
-
-  const parseOptionalNumber = (value: string) => {
-    if (!value || value.trim() === '') return undefined
-    const parsed = Number(value)
-    return Number.isNaN(parsed) ? undefined : parsed
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,20 +68,7 @@ export function EditLicenseDialog({
       setLoading(true)
       
       const updates: LicenseAttributesInput = {}
-      const existing = {
-        name: license.attributes.name || '',
-        expiry: license.attributes.expiry?.split('T')[0] || '',
-        maxUses: license.attributes.maxUses?.toString() || '',
-        maxMachines: license.attributes.maxMachines?.toString() || '',
-        maxCores: license.attributes.maxCores?.toString() || '',
-        maxMemory: license.attributes.maxMemory?.toString() || '',
-        maxDisk: license.attributes.maxDisk?.toString() || '',
-        maxProcesses: license.attributes.maxProcesses?.toString() || '',
-        maxUsers: license.attributes.maxUsers?.toString() || '',
-        protected: Boolean(license.attributes.protected),
-        suspended: Boolean(license.attributes.suspended),
-        metadata: license.attributes.metadata ? JSON.stringify(license.attributes.metadata, null, 2) : '',
-      }
+      const existing = getInitialFormData(license)
       
       // Only include fields that have values or have changed
       if (formData.name.trim() !== existing.name) {
