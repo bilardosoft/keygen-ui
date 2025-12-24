@@ -92,7 +92,14 @@ export interface License extends KeygenResource {
     status: 'active' | 'inactive' | 'expired' | 'suspended' | 'banned';
     uses: number;
     maxUses?: number;
+    maxMachines?: number;
+    maxCores?: number;
+    maxMemory?: number;
+    maxDisk?: number;
+    maxProcesses?: number;
+    maxUsers?: number;
     protected: boolean;
+    suspended?: boolean;
     floating: boolean;
     strict: boolean;
     scheme: string;

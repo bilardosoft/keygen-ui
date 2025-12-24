@@ -13,8 +13,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Edit } from 'lucide-react'
 import { getKeygenApi } from '@/lib/api'
+import type { LicenseAttributesInput } from '@/lib/api/resources/licenses'
 import { toast } from 'sonner'
 import { License } from '@/lib/types/keygen'
 import { handleCrudError } from '@/lib/utils/error-handling'
@@ -37,6 +39,14 @@ export function EditLicenseDialog({
     name: '',
     expiry: '',
     maxUses: '',
+    maxMachines: '',
+    maxCores: '',
+    maxMemory: '',
+    maxDisk: '',
+    maxProcesses: '',
+    maxUsers: '',
+    protected: false,
+    suspended: false,
     metadata: ''
   })
   const api = getKeygenApi()
@@ -48,10 +58,24 @@ export function EditLicenseDialog({
         name: license.attributes.name || '',
         expiry: license.attributes.expiry ? license.attributes.expiry.split('T')[0] : '', // Convert to date string
         maxUses: license.attributes.maxUses?.toString() || '',
+        maxMachines: license.attributes.maxMachines?.toString() || '',
+        maxCores: license.attributes.maxCores?.toString() || '',
+        maxMemory: license.attributes.maxMemory?.toString() || '',
+        maxDisk: license.attributes.maxDisk?.toString() || '',
+        maxProcesses: license.attributes.maxProcesses?.toString() || '',
+        maxUsers: license.attributes.maxUsers?.toString() || '',
+        protected: Boolean(license.attributes.protected),
+        suspended: Boolean(license.attributes.suspended),
         metadata: license.attributes.metadata ? JSON.stringify(license.attributes.metadata, null, 2) : ''
       })
     }
   }, [open, license])
+
+  const parseOptionalNumber = (value: string) => {
+    if (!value || value.trim() === '') return undefined
+    const parsed = Number(value)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,22 +83,68 @@ export function EditLicenseDialog({
     try {
       setLoading(true)
       
-      const updates: Partial<License['attributes']> = {}
+      const updates: LicenseAttributesInput = {}
+      const existing = {
+        name: license.attributes.name || '',
+        expiry: license.attributes.expiry?.split('T')[0] || '',
+        maxUses: license.attributes.maxUses?.toString() || '',
+        maxMachines: license.attributes.maxMachines?.toString() || '',
+        maxCores: license.attributes.maxCores?.toString() || '',
+        maxMemory: license.attributes.maxMemory?.toString() || '',
+        maxDisk: license.attributes.maxDisk?.toString() || '',
+        maxProcesses: license.attributes.maxProcesses?.toString() || '',
+        maxUsers: license.attributes.maxUsers?.toString() || '',
+        protected: Boolean(license.attributes.protected),
+        suspended: Boolean(license.attributes.suspended),
+        metadata: license.attributes.metadata ? JSON.stringify(license.attributes.metadata, null, 2) : '',
+      }
       
       // Only include fields that have values or have changed
-      if (formData.name.trim() !== (license.attributes.name || '')) {
+      if (formData.name.trim() !== existing.name) {
         updates.name = formData.name.trim() || undefined
       }
       
-      if (formData.expiry !== (license.attributes.expiry?.split('T')[0] || '')) {
+      if (formData.expiry !== existing.expiry) {
         updates.expiry = formData.expiry ? new Date(formData.expiry).toISOString() : undefined
       }
       
-      if (formData.maxUses !== (license.attributes.maxUses?.toString() || '')) {
-        updates.maxUses = formData.maxUses ? parseInt(formData.maxUses) : undefined
+      if (formData.maxUses !== existing.maxUses) {
+        updates.maxUses = parseOptionalNumber(formData.maxUses)
       }
       
-      if (formData.metadata !== (license.attributes.metadata ? JSON.stringify(license.attributes.metadata, null, 2) : '')) {
+      if (formData.maxMachines !== existing.maxMachines) {
+        updates.maxMachines = parseOptionalNumber(formData.maxMachines)
+      }
+
+      if (formData.maxCores !== existing.maxCores) {
+        updates.maxCores = parseOptionalNumber(formData.maxCores)
+      }
+
+      if (formData.maxMemory !== existing.maxMemory) {
+        updates.maxMemory = parseOptionalNumber(formData.maxMemory)
+      }
+
+      if (formData.maxDisk !== existing.maxDisk) {
+        updates.maxDisk = parseOptionalNumber(formData.maxDisk)
+      }
+
+      if (formData.maxProcesses !== existing.maxProcesses) {
+        updates.maxProcesses = parseOptionalNumber(formData.maxProcesses)
+      }
+
+      if (formData.maxUsers !== existing.maxUsers) {
+        updates.maxUsers = parseOptionalNumber(formData.maxUsers)
+      }
+
+      if (formData.protected !== existing.protected) {
+        updates.protected = formData.protected
+      }
+
+      if (formData.suspended !== existing.suspended) {
+        updates.suspended = formData.suspended
+      }
+
+      if (formData.metadata !== existing.metadata) {
         if (formData.metadata.trim()) {
           try {
             updates.metadata = JSON.parse(formData.metadata)
@@ -139,6 +209,32 @@ export function EditLicenseDialog({
             />
           </div>
 
+          {/* Flags */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="protected"
+                  checked={formData.protected}
+                  onCheckedChange={(v) => setFormData({ ...formData, protected: Boolean(v) })}
+                />
+                <Label htmlFor="protected">Protected</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">Prevent further edits to this license.</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="suspended"
+                  checked={formData.suspended}
+                  onCheckedChange={(v) => setFormData({ ...formData, suspended: Boolean(v) })}
+                />
+                <Label htmlFor="suspended">Suspended</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">Temporarily disable license usage.</p>
+            </div>
+          </div>
+
           {/* Expiry Date */}
           <div className="space-y-2">
             <Label htmlFor="expiry">Expiry Date</Label>
@@ -167,6 +263,79 @@ export function EditLicenseDialog({
             <p className="text-xs text-muted-foreground">
               Maximum number of times this license can be used
             </p>
+          </div>
+
+          {/* Limits */}
+          <div className="space-y-2">
+            <Label>Resource Limits</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Input
+                  id="maxMachines"
+                  type="number"
+                  min="0"
+                  placeholder="Max machines (optional)"
+                  value={formData.maxMachines}
+                  onChange={(e) => setFormData({ ...formData, maxMachines: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Maximum machines that can attach.</p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="maxProcesses"
+                  type="number"
+                  min="0"
+                  placeholder="Max processes (optional)"
+                  value={formData.maxProcesses}
+                  onChange={(e) => setFormData({ ...formData, maxProcesses: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Maximum processes allowed.</p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="maxCores"
+                  type="number"
+                  min="0"
+                  placeholder="Max cores (optional)"
+                  value={formData.maxCores}
+                  onChange={(e) => setFormData({ ...formData, maxCores: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Limit total CPU cores.</p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="maxMemory"
+                  type="number"
+                  min="0"
+                  placeholder="Max memory (optional)"
+                  value={formData.maxMemory}
+                  onChange={(e) => setFormData({ ...formData, maxMemory: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Limit total memory usage.</p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="maxDisk"
+                  type="number"
+                  min="0"
+                  placeholder="Max disk (optional)"
+                  value={formData.maxDisk}
+                  onChange={(e) => setFormData({ ...formData, maxDisk: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Limit disk allocation.</p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="maxUsers"
+                  type="number"
+                  min="0"
+                  placeholder="Max users (optional)"
+                  value={formData.maxUsers}
+                  onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Maximum associated users.</p>
+              </div>
+            </div>
           </div>
 
           {/* Metadata */}

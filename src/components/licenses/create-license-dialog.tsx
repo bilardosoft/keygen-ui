@@ -61,9 +61,16 @@ export function CreateLicenseDialog({
     groupId: '',
     key: '',
     protected: true,
+    suspended: false,
     permissions: '',
     expiry: undefined as Date | undefined,
-    
+    maxUses: '',
+    maxMachines: '',
+    maxCores: '',
+    maxMemory: '',
+    maxDisk: '',
+    maxProcesses: '',
+    maxUsers: '',
   })
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>([])
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
@@ -82,8 +89,16 @@ export function CreateLicenseDialog({
       groupId: '',
       key: '',
       protected: true,
+      suspended: false,
       permissions: '',
       expiry: undefined,
+      maxUses: '',
+      maxMachines: '',
+      maxCores: '',
+      maxMemory: '',
+      maxDisk: '',
+      maxProcesses: '',
+      maxUsers: '',
     })
     setMetadata([])
     setSelectedUsers([])
@@ -128,6 +143,12 @@ export function CreateLicenseDialog({
     }
   }, [dialogOpen, loadInitialData])
 
+  const parseOptionalNumber = (value: string) => {
+    if (!value || value.trim() === '') return undefined
+    const parsed = Number(value)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -146,6 +167,14 @@ export function CreateLicenseDialog({
         name: formData.name || undefined,
         key: formData.key || undefined,
         protected: formData.protected,
+        suspended: formData.suspended,
+        maxUses: parseOptionalNumber(formData.maxUses),
+        maxMachines: parseOptionalNumber(formData.maxMachines),
+        maxCores: parseOptionalNumber(formData.maxCores),
+        maxMemory: parseOptionalNumber(formData.maxMemory),
+        maxDisk: parseOptionalNumber(formData.maxDisk),
+        maxProcesses: parseOptionalNumber(formData.maxProcesses),
+        maxUsers: parseOptionalNumber(formData.maxUsers),
         permissions: formData.permissions
           ? formData.permissions.split(',').map((p) => p.trim()).filter(Boolean)
           : undefined,
@@ -182,8 +211,16 @@ export function CreateLicenseDialog({
         groupId: '',
         key: '',
         protected: true,
+        suspended: false,
         permissions: '',
         expiry: undefined,
+        maxUses: '',
+        maxMachines: '',
+        maxCores: '',
+        maxMemory: '',
+        maxDisk: '',
+        maxProcesses: '',
+        maxUsers: '',
       })
       setMetadata([])
       setSelectedUsers([])
@@ -324,6 +361,25 @@ export function CreateLicenseDialog({
                   </div>
                   <p className="text-xs text-muted-foreground ml-6">Prevents modification of license attributes after creation.</p>
                 </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mt-6">
+                    <Checkbox
+                      id="suspended"
+                      checked={formData.suspended}
+                      onCheckedChange={(v) => setFormData({ ...formData, suspended: Boolean(v) })}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="suspended">Suspended</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="size-3.5 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>Temporarily disable this license</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-6">Suspended licenses cannot be used until reinstated.</p>
+                </div>
                 <div className="space-y-2 md:col-span-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="permissions">Permissions</Label>
@@ -340,6 +396,91 @@ export function CreateLicenseDialog({
                     placeholder="Enter permissions…"
                     value={formData.permissions}
                     onChange={(e) => setFormData({ ...formData, permissions: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Limits */}
+            <div className="space-y-3">
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Limits</div>
+              <p className="text-xs text-muted-foreground">Optional caps for usage and resource allocations.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="maxUses">Max Uses</Label>
+                  <Input
+                    id="maxUses"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxUses}
+                    onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxMachines">Max Machines</Label>
+                  <Input
+                    id="maxMachines"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxMachines}
+                    onChange={(e) => setFormData({ ...formData, maxMachines: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxProcesses">Max Processes</Label>
+                  <Input
+                    id="maxProcesses"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxProcesses}
+                    onChange={(e) => setFormData({ ...formData, maxProcesses: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxCores">Max Cores</Label>
+                  <Input
+                    id="maxCores"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxCores}
+                    onChange={(e) => setFormData({ ...formData, maxCores: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxMemory">Max Memory</Label>
+                  <Input
+                    id="maxMemory"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxMemory}
+                    onChange={(e) => setFormData({ ...formData, maxMemory: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxDisk">Max Disk</Label>
+                  <Input
+                    id="maxDisk"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxDisk}
+                    onChange={(e) => setFormData({ ...formData, maxDisk: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxUsers">Max Users</Label>
+                  <Input
+                    id="maxUsers"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxUsers}
+                    onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
                   />
                 </div>
               </div>
