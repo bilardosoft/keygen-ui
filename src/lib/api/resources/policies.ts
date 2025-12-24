@@ -6,10 +6,26 @@ type PolicyAttributesInput = {
   duration?: number;
   strict?: boolean;
   floating?: boolean;
+  scheme?: string | null;
   protected?: boolean;
+  requireProductScope?: boolean;
+  requirePolicyScope?: boolean;
+  requireMachineScope?: boolean;
+  requireFingerprintScope?: boolean;
+  requireComponentsScope?: boolean;
+  requireUserScope?: boolean;
+  requireChecksumScope?: boolean;
+  requireVersionScope?: boolean;
+  requireCheckIn?: boolean;
+  checkInInterval?: 'day' | 'week' | 'month' | 'year';
+  checkInIntervalCount?: number;
+  usePool?: boolean;
   maxMachines?: number;
   maxProcesses?: number;
   maxCores?: number;
+  maxMemory?: number;
+  maxDisk?: number;
+  maxUsers?: number;
   maxUses?: number;
   requireHeartbeat?: boolean;
   heartbeatDuration?: number;
@@ -43,7 +59,23 @@ const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
     maxMachines,
     maxProcesses,
     maxCores,
+    maxMemory,
+    maxDisk,
+    maxUsers,
     maxUses,
+    scheme,
+    requireProductScope,
+    requirePolicyScope,
+    requireMachineScope,
+    requireFingerprintScope,
+    requireComponentsScope,
+    requireUserScope,
+    requireChecksumScope,
+    requireVersionScope,
+    requireCheckIn,
+    checkInInterval,
+    checkInIntervalCount,
+    usePool,
     requireHeartbeat,
     heartbeatDuration,
     heartbeatCullStrategy,
@@ -73,7 +105,23 @@ const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
   addIfDefined('max_machines', maxMachines);
   addIfDefined('max_processes', maxProcesses);
   addIfDefined('max_cores', maxCores);
+  addIfDefined('max_memory', maxMemory);
+  addIfDefined('max_disk', maxDisk);
+  addIfDefined('max_users', maxUsers);
   addIfDefined('max_uses', maxUses);
+  addIfDefined('scheme', scheme);
+  addIfDefined('require_product_scope', requireProductScope);
+  addIfDefined('require_policy_scope', requirePolicyScope);
+  addIfDefined('require_machine_scope', requireMachineScope);
+  addIfDefined('require_fingerprint_scope', requireFingerprintScope);
+  addIfDefined('require_components_scope', requireComponentsScope);
+  addIfDefined('require_user_scope', requireUserScope);
+  addIfDefined('require_checksum_scope', requireChecksumScope);
+  addIfDefined('require_version_scope', requireVersionScope);
+  addIfDefined('require_check_in', requireCheckIn);
+  addIfDefined('check_in_interval', checkInInterval);
+  addIfDefined('check_in_interval_count', checkInIntervalCount);
+  addIfDefined('use_pool', usePool);
   addIfDefined('require_heartbeat', requireHeartbeat);
   addIfDefined('heartbeat_duration', heartbeatDuration);
   addIfDefined('heartbeat_cull_strategy', heartbeatCullStrategy);

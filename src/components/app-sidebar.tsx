@@ -14,6 +14,10 @@ import {
   IconUsersGroup,
   IconShieldCheck,
   IconWebhook,
+  IconLock,
+  IconActivity,
+  IconCpu,
+  IconGlobe,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -42,9 +46,24 @@ const data = {
       icon: IconKey,
     },
     {
+      title: "Tokens",
+      url: "/tokens",
+      icon: IconLock,
+    },
+    {
       title: "Machines",
       url: "/machines", 
       icon: IconDeviceDesktop,
+    },
+    {
+      title: "Processes",
+      url: "/processes",
+      icon: IconActivity,
+    },
+    {
+      title: "Components",
+      url: "/components",
+      icon: IconCpu,
     },
     {
       title: "Products",
@@ -60,6 +79,11 @@ const data = {
       title: "Groups",
       url: "/groups",
       icon: IconUsersGroup,
+    },
+    {
+      title: "Environments",
+      url: "/environments",
+      icon: IconGlobe,
     },
     {
       title: "Entitlements",

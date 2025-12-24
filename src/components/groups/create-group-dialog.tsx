@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getKeygenApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { handleFormError } from '@/lib/utils/error-handling'
+import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
+import { Environment } from '@/lib/types/keygen'
 
 interface CreateGroupDialogProps {
   open: boolean
@@ -21,14 +23,32 @@ export function CreateGroupDialog({
   onGroupCreated
 }: CreateGroupDialogProps) {
   const [loading, setLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
+  const [environments, setEnvironments] = useState<Environment[]>([])
   const [formData, setFormData] = useState({
     name: '',
     maxLicenses: '',
     maxMachines: '',
-    maxUsers: ''
+    maxUsers: '',
+    environmentId: '',
+    metadata: ''
   })
 
   const api = getKeygenApi()
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.environments.list({ limit: 100 })
+        setEnvironments(res.data || [])
+      } catch (error) {
+        handleLoadError(error, 'environments')
+      } finally {
+        setLoadingData(false)
+      }
+    }
+    load()
+  }, [api.environments])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,13 +61,27 @@ export function CreateGroupDialog({
     setLoading(true)
     
     try {
+      let metadata: Record<string, unknown> | undefined
+      if (formData.metadata.trim()) {
+        try {
+          metadata = JSON.parse(formData.metadata)
+        } catch {
+          toast.error('Metadata must be valid JSON')
+          return
+        }
+      }
+
       const groupData: {
         name: string;
         maxLicenses?: number;
         maxMachines?: number;
         maxUsers?: number;
+        environmentId?: string;
+        metadata?: Record<string, unknown>;
       } = {
-        name: formData.name.trim()
+        name: formData.name.trim(),
+        environmentId: formData.environmentId || undefined,
+        metadata,
       }
 
       // Add optional limits if specified
@@ -68,7 +102,9 @@ export function CreateGroupDialog({
         name: '',
         maxLicenses: '',
         maxMachines: '',
-        maxUsers: ''
+        maxUsers: '',
+        environmentId: '',
+        metadata: ''
       })
       
       onGroupCreated()
@@ -112,6 +148,28 @@ export function CreateGroupDialog({
             </div>
 
             <div className="grid gap-2">
+              <Label htmlFor="environment">Environment</Label>
+              <p className="text-xs text-muted-foreground">Optional: scope this group to an environment.</p>
+              <Select
+                value={formData.environmentId}
+                onValueChange={(value) => handleInputChange('environmentId', value)}
+                disabled={loading || loadingData}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No environment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No environment</SelectItem>
+                  {environments.map((env) => (
+                    <SelectItem key={env.id} value={env.id}>
+                      {env.attributes.name} ({env.attributes.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
               <Label htmlFor="maxLicenses">Max Licenses</Label>
               <p className="text-xs text-muted-foreground">Optional limit on how many licenses this group can own.</p>
               <Input
@@ -149,6 +207,18 @@ export function CreateGroupDialog({
                 value={formData.maxUsers}
                 onChange={(e) => handleInputChange('maxUsers', e.target.value)}
                 placeholder="Leave empty for unlimited"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="metadata">Metadata</Label>
+              <p className="text-xs text-muted-foreground">Optional JSON metadata (e.g., {"{"}"tier":"enterprise"{"}"}).</p>
+              <Input
+                id="metadata"
+                value={formData.metadata}
+                onChange={(e) => handleInputChange('metadata', e.target.value)}
+                placeholder='{"tier":"enterprise"}'
                 disabled={loading}
               />
             </div>

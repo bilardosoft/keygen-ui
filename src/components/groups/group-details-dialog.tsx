@@ -233,7 +233,7 @@ export function GroupDetailsDialog({
                       </div>
                       <div className="flex gap-2">
                         <Badge variant="outline">{user.attributes.role}</Badge>
-                        <Badge variant={user.attributes.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge variant={user.attributes.status === 'ACTIVE' ? 'default' : 'secondary'}>
                           {user.attributes.status}
                         </Badge>
                       </div>

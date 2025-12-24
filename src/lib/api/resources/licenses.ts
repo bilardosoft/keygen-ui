@@ -1,6 +1,57 @@
 import { KeygenClient } from '../client';
 import { License, LicenseFilters, KeygenResponse } from '@/lib/types/keygen';
 
+export type LicenseAttributesInput = {
+  name?: string;
+  key?: string;
+  protected?: boolean;
+  expiry?: string;
+  suspended?: boolean;
+  maxMachines?: number;
+  maxCores?: number;
+  maxMemory?: number;
+  maxDisk?: number;
+  maxUses?: number;
+  maxProcesses?: number;
+  maxUsers?: number;
+  metadata?: Record<string, unknown>;
+  permissions?: string[];
+};
+
+const serializeLicenseAttributes = (attributes: LicenseAttributesInput) => {
+  const {
+    maxMachines,
+    maxCores,
+    maxMemory,
+    maxDisk,
+    maxUses,
+    maxProcesses,
+    maxUsers,
+    ...rest
+  } = attributes;
+
+  const serialized: Record<string, unknown> = { ...rest };
+
+  const addIfDefined = (key: string, value: unknown) => {
+    if (value !== undefined) {
+      if (typeof value === 'number' && value < 0) {
+        return;
+      }
+      serialized[key] = value;
+    }
+  };
+
+  addIfDefined('max_machines', maxMachines);
+  addIfDefined('max_cores', maxCores);
+  addIfDefined('max_memory', maxMemory);
+  addIfDefined('max_disk', maxDisk);
+  addIfDefined('max_uses', maxUses);
+  addIfDefined('max_processes', maxProcesses);
+  addIfDefined('max_users', maxUsers);
+
+  return serialized;
+};
+
 export class LicenseResource {
   constructor(private client: KeygenClient) {}
 
@@ -32,44 +83,43 @@ export class LicenseResource {
   /**
    * Create a new license
    */
-  async create(licenseData: {
-    policyId: string;
-    userId?: string;
-    groupId?: string;
-    name?: string;
-    metadata?: Record<string, unknown>;
-    expiry?: string;
-    maxUses?: number;
-    key?: string;
-    protected?: boolean;
-    permissions?: string[];
-  }): Promise<KeygenResponse<License>> {
+  async create(
+    licenseData: LicenseAttributesInput & {
+      policyId: string;
+      userId?: string;
+      groupId?: string;
+      environmentId?: string;
+    }
+  ): Promise<KeygenResponse<License>> {
+    const {
+      policyId,
+      userId,
+      groupId,
+      environmentId,
+      ...attributes
+    } = licenseData;
+
     const body = {
       data: {
         type: 'licenses',
-        attributes: {
-          name: licenseData.name,
-          metadata: licenseData.metadata || {},
-          expiry: licenseData.expiry,
-          maxUses: licenseData.maxUses,
-          ...(licenseData.key ? { key: licenseData.key } : {}),
-          ...(licenseData.protected !== undefined ? { protected: licenseData.protected } : {}),
-          ...(licenseData.permissions && licenseData.permissions.length > 0
-            ? { permissions: licenseData.permissions }
-            : {}),
-        },
+        attributes: serializeLicenseAttributes(attributes),
         relationships: {
           policy: {
-            data: { type: 'policies', id: licenseData.policyId },
+            data: { type: 'policies', id: policyId },
           },
-          ...(licenseData.userId && {
+          ...(userId && {
             user: {
-              data: { type: 'users', id: licenseData.userId },
+              data: { type: 'users', id: userId },
             },
           }),
-          ...(licenseData.groupId && {
+          ...(groupId && {
             group: {
-              data: { type: 'groups', id: licenseData.groupId },
+              data: { type: 'groups', id: groupId },
+            },
+          }),
+          ...(environmentId && {
+            environment: {
+              data: { type: 'environments', id: environmentId },
             },
           }),
         },
@@ -119,17 +169,12 @@ export class LicenseResource {
   /**
    * Update a license
    */
-  async update(id: string, updates: {
-    name?: string;
-    metadata?: Record<string, unknown>;
-    expiry?: string;
-    maxUses?: number;
-  }): Promise<KeygenResponse<License>> {
+  async update(id: string, updates: LicenseAttributesInput): Promise<KeygenResponse<License>> {
     const body = {
       data: {
         type: 'licenses',
         id,
-        attributes: updates,
+        attributes: serializeLicenseAttributes(updates),
       },
     };
 

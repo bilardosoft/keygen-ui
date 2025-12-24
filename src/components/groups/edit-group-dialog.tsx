@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { getKeygenApi } from '@/lib/api'
-import { Group } from '@/lib/types/keygen'
-import { handleCrudError } from '@/lib/utils/error-handling'
+import { Environment, Group } from '@/lib/types/keygen'
+import { handleCrudError, handleLoadError } from '@/lib/utils/error-handling'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
 interface EditGroupDialogProps {
@@ -24,11 +25,15 @@ export function EditGroupDialog({
   onGroupUpdated
 }: EditGroupDialogProps) {
   const [loading, setLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
+  const [environments, setEnvironments] = useState<Environment[]>([])
   const [formData, setFormData] = useState({
     name: '',
     maxLicenses: '',
     maxMachines: '',
-    maxUsers: ''
+    maxUsers: '',
+    environmentId: '',
+    metadata: ''
   })
 
   const api = getKeygenApi()
@@ -40,10 +45,30 @@ export function EditGroupDialog({
         name: group.attributes.name,
         maxLicenses: group.attributes.maxLicenses?.toString() || '',
         maxMachines: group.attributes.maxMachines?.toString() || '',
-        maxUsers: group.attributes.maxUsers?.toString() || ''
+        maxUsers: group.attributes.maxUsers?.toString() || '',
+        environmentId:
+          (group.relationships?.environment?.data &&
+            'id' in group.relationships.environment.data &&
+            group.relationships.environment.data.id) ||
+          '',
+        metadata: group.attributes.metadata ? JSON.stringify(group.attributes.metadata, null, 2) : '',
       })
     }
   }, [group])
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.environments.list({ limit: 100 })
+        setEnvironments(res.data || [])
+      } catch (error) {
+        handleLoadError(error, 'environments')
+      } finally {
+        setLoadingData(false)
+      }
+    }
+    load()
+  }, [api.environments])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,13 +81,27 @@ export function EditGroupDialog({
     setLoading(true)
     
     try {
+      let metadata: Record<string, unknown> | undefined
+      if (formData.metadata.trim()) {
+        try {
+          metadata = JSON.parse(formData.metadata)
+        } catch {
+          toast.error('Metadata must be valid JSON')
+          return
+        }
+      }
+
       const updates: {
         name: string;
         maxLicenses?: number;
         maxMachines?: number;
         maxUsers?: number;
+        environmentId?: string | null;
+        metadata?: Record<string, unknown>;
       } = {
-        name: formData.name.trim()
+        name: formData.name.trim(),
+        environmentId: formData.environmentId || null,
+        metadata,
       }
 
       // Add optional limits - use undefined for unlimited (empty string)
@@ -119,6 +158,27 @@ export function EditGroupDialog({
             </div>
 
             <div className="grid gap-2">
+              <Label htmlFor="environment">Environment</Label>
+              <Select
+                value={formData.environmentId}
+                onValueChange={(value) => handleInputChange('environmentId', value)}
+                disabled={loading || loadingData}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No environment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No environment</SelectItem>
+                  {environments.map((env) => (
+                    <SelectItem key={env.id} value={env.id}>
+                      {env.attributes.name} ({env.attributes.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
               <Label htmlFor="maxLicenses">Max Licenses</Label>
               <Input
                 id="maxLicenses"
@@ -153,6 +213,17 @@ export function EditGroupDialog({
                 value={formData.maxUsers}
                 onChange={(e) => handleInputChange('maxUsers', e.target.value)}
                 placeholder="Leave empty for unlimited"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="metadata">Metadata</Label>
+              <Input
+                id="metadata"
+                value={formData.metadata}
+                onChange={(e) => handleInputChange('metadata', e.target.value)}
+                placeholder='{"tier":"enterprise"}'
                 disabled={loading}
               />
             </div>

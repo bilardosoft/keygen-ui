@@ -75,11 +75,17 @@ export interface User extends KeygenResource {
     fullName?: string;
     email: string;
     role: 'admin' | 'developer' | 'sales-agent' | 'support-agent' | 'read-only' | 'user';
-    status: 'active' | 'inactive' | 'banned';
+    status?: 'ACTIVE' | 'INACTIVE' | 'BANNED';
+    permissions?: string[];
+    metadata?: Record<string, unknown>;
     banned?: boolean; // Legacy property for backward compatibility
     lastSignedInAt?: string;
     created: string;
     updated: string;
+  };
+  relationships?: {
+    group?: KeygenRelationship;
+    environment?: KeygenRelationship;
   };
 }
 
@@ -92,7 +98,14 @@ export interface License extends KeygenResource {
     status: 'active' | 'inactive' | 'expired' | 'suspended' | 'banned';
     uses: number;
     maxUses?: number;
+    maxMachines?: number;
+    maxCores?: number;
+    maxMemory?: number;
+    maxDisk?: number;
+    maxProcesses?: number;
+    maxUsers?: number;
     protected: boolean;
+    suspended?: boolean;
     floating: boolean;
     strict: boolean;
     scheme: string;
@@ -113,11 +126,43 @@ export interface Machine extends KeygenResource {
     platform?: string;
     hostname?: string;
     cores?: number;
+    memory?: number;
+    disk?: number;
     ip?: string;
     requireHeartbeat: boolean;
     heartbeatStatus: 'alive' | 'dead' | 'not-started';
     heartbeatDuration?: number;
     lastHeartbeat?: string;
+    nextHeartbeat?: string | null;
+    lastCheckOut?: string | null;
+    metadata?: Record<string, unknown>;
+    created: string;
+    updated: string;
+  };
+}
+
+export interface Token extends KeygenResource {
+  type: 'tokens';
+  attributes: {
+    kind: string;
+    token?: string;
+    expiry: string | null;
+    permissions?: string[];
+    created: string;
+    updated: string;
+  };
+  relationships?: {
+    account?: KeygenRelationship;
+    bearer?: KeygenRelationship;
+  };
+}
+
+export interface Environment extends KeygenResource {
+  type: 'environments';
+  attributes: {
+    name: string;
+    code: string;
+    isolationStrategy?: string;
     created: string;
     updated: string;
   };
@@ -147,6 +192,7 @@ export interface Policy extends KeygenResource {
     duration?: number;
     strict: boolean;
     floating: boolean;
+    scheme?: string | null;
     requireProductScope: boolean;
     requirePolicyScope: boolean;
     requireMachineScope: boolean;
@@ -162,6 +208,9 @@ export interface Policy extends KeygenResource {
     maxMachines?: number;
     maxProcesses?: number;
     maxCores?: number;
+    maxMemory?: number;
+    maxDisk?: number;
+    maxUsers?: number;
     maxUses?: number;
     protected: boolean;
     requireHeartbeat: boolean;
@@ -193,8 +242,12 @@ export interface Group extends KeygenResource {
     maxLicenses?: number;
     maxMachines?: number;
     maxUsers?: number;
+    metadata?: Record<string, unknown>;
     created: string;
     updated: string;
+  };
+  relationships?: {
+    environment?: KeygenRelationship;
   };
 }
 
@@ -214,6 +267,11 @@ export interface Process extends KeygenResource {
   type: 'processes';
   attributes: {
     pid: number;
+    status?: string;
+    interval?: number;
+    lastHeartbeat?: string;
+    nextHeartbeat?: string;
+    metadata?: Record<string, unknown>;
     name?: string;
     platform?: string;
     created: string;
@@ -227,6 +285,7 @@ export interface Component extends KeygenResource {
   attributes: {
     name: string;
     fingerprint: string;
+    metadata?: Record<string, unknown>;
     created: string;
     updated: string;
   };

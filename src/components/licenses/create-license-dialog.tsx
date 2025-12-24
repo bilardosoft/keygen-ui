@@ -28,9 +28,10 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Plus, HelpCircle, RefreshCcw, X } from 'lucide-react'
 import { getKeygenApi } from '@/lib/api'
-import { Entitlement, Group, Policy, User } from '@/lib/types/keygen'
+import { Entitlement, Environment, Group, Policy, User } from '@/lib/types/keygen'
 import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
 import { toast } from 'sonner'
+import { parseOptionalNumber } from './utils'
 
 interface CreateLicenseDialogProps {
   onLicenseCreated?: () => void
@@ -39,6 +40,26 @@ interface CreateLicenseDialogProps {
   hideTrigger?: boolean
   trigger?: React.ReactNode
 }
+
+const getDefaultFormState = () => ({
+  name: '',
+  policyId: '',
+  userId: '',
+  groupId: '',
+  environmentId: '',
+  key: '',
+  protected: true,
+  suspended: false,
+  permissions: '',
+  expiry: undefined as Date | undefined,
+  maxUses: '',
+  maxMachines: '',
+  maxCores: '',
+  maxMemory: '',
+  maxDisk: '',
+  maxProcesses: '',
+  maxUsers: '',
+})
 
 export function CreateLicenseDialog({
   onLicenseCreated,
@@ -52,19 +73,10 @@ export function CreateLicenseDialog({
   const [policies, setPolicies] = useState<Policy[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [groups, setGroups] = useState<Group[]>([])
+  const [environments, setEnvironments] = useState<Environment[]>([])
   const [entitlements, setEntitlements] = useState<Entitlement[]>([])
   const [loadingData, setLoadingData] = useState(true)
-  const [formData, setFormData] = useState({
-    name: '',
-    policyId: '',
-    userId: '', // owner
-    groupId: '',
-    key: '',
-    protected: true,
-    permissions: '',
-    expiry: undefined as Date | undefined,
-    
-  })
+  const [formData, setFormData] = useState(getDefaultFormState)
   const [metadata, setMetadata] = useState<{ key: string; value: string }[]>([])
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [selectedEntitlements, setSelectedEntitlements] = useState<string[]>([])
@@ -75,16 +87,7 @@ export function CreateLicenseDialog({
   const dialogOpen = open ?? internalOpen
 
   const resetFormState = () => {
-    setFormData({
-      name: '',
-      policyId: '',
-      userId: '',
-      groupId: '',
-      key: '',
-      protected: true,
-      permissions: '',
-      expiry: undefined,
-    })
+    setFormData(getDefaultFormState())
     setMetadata([])
     setSelectedUsers([])
     setSelectedEntitlements([])
@@ -105,22 +108,24 @@ export function CreateLicenseDialog({
   const loadInitialData = useCallback(async () => {
     try {
       setLoadingData(true)
-      const [policiesResponse, usersResponse, groupsResponse, entitlementsResponse] = await Promise.all([
+      const [policiesResponse, usersResponse, groupsResponse, environmentsResponse, entitlementsResponse] = await Promise.all([
         api.policies.list({ limit: 100 }),
         api.users.list({ limit: 100 }),
         api.groups.list({ limit: 100 }),
+        api.environments.list({ limit: 100 }),
         api.entitlements.list({ limit: 100 }),
       ])
       setPolicies(policiesResponse.data || [])
       setUsers(usersResponse.data || [])
       setGroups(groupsResponse.data || [])
+      setEnvironments(environmentsResponse.data || [])
       setEntitlements(entitlementsResponse.data || [])
     } catch (error: unknown) {
       handleLoadError(error, 'initial data')
     } finally {
       setLoadingData(false)
     }
-  }, [api.policies, api.users, api.groups, api.entitlements])
+  }, [api.policies, api.users, api.groups, api.environments, api.entitlements])
 
   useEffect(() => {
     if (dialogOpen) {
@@ -143,9 +148,18 @@ export function CreateLicenseDialog({
         policyId: formData.policyId,
         userId: formData.userId === 'none' ? undefined : formData.userId || undefined,
         groupId: formData.groupId === 'none' ? undefined : formData.groupId || undefined,
+        environmentId: formData.environmentId === 'none' ? undefined : formData.environmentId || undefined,
         name: formData.name || undefined,
         key: formData.key || undefined,
         protected: formData.protected,
+        suspended: formData.suspended,
+        maxUses: parseOptionalNumber(formData.maxUses),
+        maxMachines: parseOptionalNumber(formData.maxMachines),
+        maxCores: parseOptionalNumber(formData.maxCores),
+        maxMemory: parseOptionalNumber(formData.maxMemory),
+        maxDisk: parseOptionalNumber(formData.maxDisk),
+        maxProcesses: parseOptionalNumber(formData.maxProcesses),
+        maxUsers: parseOptionalNumber(formData.maxUsers),
         permissions: formData.permissions
           ? formData.permissions.split(',').map((p) => p.trim()).filter(Boolean)
           : undefined,
@@ -175,19 +189,7 @@ export function CreateLicenseDialog({
 
       toast.success('License created successfully')
       handleOpenChange(false)
-      setFormData({
-        name: '',
-        policyId: '',
-        userId: '',
-        groupId: '',
-        key: '',
-        protected: true,
-        permissions: '',
-        expiry: undefined,
-      })
-      setMetadata([])
-      setSelectedUsers([])
-      setSelectedEntitlements([])
+      resetFormState()
       onLicenseCreated?.()
     } catch (error: unknown) {
       handleFormError(error, 'License', {
@@ -225,9 +227,9 @@ export function CreateLicenseDialog({
           </DialogDescription>
         </DialogHeader>
         {loadingData ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-sm text-muted-foreground">Loading policies and users...</div>
-          </div>
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-muted-foreground">Loading policies, users, groups, and environments...</div>
+            </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Attributes */}
@@ -324,6 +326,25 @@ export function CreateLicenseDialog({
                   </div>
                   <p className="text-xs text-muted-foreground ml-6">Prevents modification of license attributes after creation.</p>
                 </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mt-6">
+                    <Checkbox
+                      id="suspended"
+                      checked={formData.suspended}
+                      onCheckedChange={(v) => setFormData({ ...formData, suspended: Boolean(v) })}
+                    />
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="suspended">Suspended</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="size-3.5 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>Temporarily disable this license</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground ml-6">Suspended licenses cannot be used until reinstated.</p>
+                </div>
                 <div className="space-y-2 md:col-span-2">
                   <div className="flex items-center gap-1">
                     <Label htmlFor="permissions">Permissions</Label>
@@ -340,6 +361,91 @@ export function CreateLicenseDialog({
                     placeholder="Enter permissions…"
                     value={formData.permissions}
                     onChange={(e) => setFormData({ ...formData, permissions: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Limits */}
+            <div className="space-y-3">
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Limits</div>
+              <p className="text-xs text-muted-foreground">Optional caps for usage and resource allocations.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="maxUses">Max Uses</Label>
+                  <Input
+                    id="maxUses"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxUses}
+                    onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxMachines">Max Machines</Label>
+                  <Input
+                    id="maxMachines"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxMachines}
+                    onChange={(e) => setFormData({ ...formData, maxMachines: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxProcesses">Max Processes</Label>
+                  <Input
+                    id="maxProcesses"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxProcesses}
+                    onChange={(e) => setFormData({ ...formData, maxProcesses: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxCores">Max Cores</Label>
+                  <Input
+                    id="maxCores"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxCores}
+                    onChange={(e) => setFormData({ ...formData, maxCores: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxMemory">Max Memory</Label>
+                  <Input
+                    id="maxMemory"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxMemory}
+                    onChange={(e) => setFormData({ ...formData, maxMemory: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxDisk">Max Disk</Label>
+                  <Input
+                    id="maxDisk"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxDisk}
+                    onChange={(e) => setFormData({ ...formData, maxDisk: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxUsers">Max Users</Label>
+                  <Input
+                    id="maxUsers"
+                    type="number"
+                    min="0"
+                    placeholder="Unlimited"
+                    value={formData.maxUsers}
+                    onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
                   />
                 </div>
               </div>
@@ -462,6 +568,37 @@ export function CreateLicenseDialog({
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">Optional: associate the license with a group for quota and reporting.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="environment">Environment</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="size-3.5 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>Optional environment scoping</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <Select
+                    value={formData.environmentId}
+                    onValueChange={(value) => setFormData({ ...formData, environmentId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select environment" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No environment</SelectItem>
+                      {environments.map((env) => (
+                        <SelectItem key={env.id} value={env.id}>
+                          {env.attributes.name} ({env.attributes.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Optional: scope the license to an environment (e.g., sandbox vs prod).</p>
                 </div>
 
                 <div className="space-y-2">

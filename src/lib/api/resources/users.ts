@@ -37,6 +37,8 @@ export class UserResource {
     role?: User['attributes']['role'];
     password?: string;
     metadata?: Record<string, unknown>;
+    permissions?: string[];
+    groupId?: string;
   }): Promise<KeygenResponse<User>> {
     const body = {
       data: {
@@ -48,7 +50,11 @@ export class UserResource {
           role: userData.role || 'user',
           password: userData.password,
           metadata: userData.metadata || {},
+          permissions: userData.permissions,
         },
+        relationships: userData.groupId
+          ? { group: { data: { type: 'groups', id: userData.groupId } } }
+          : undefined,
       },
     };
 
@@ -67,12 +73,22 @@ export class UserResource {
     email?: string;
     role?: User['attributes']['role'];
     metadata?: Record<string, unknown>;
+    permissions?: string[];
+    groupId?: string | null;
   }): Promise<KeygenResponse<User>> {
     const body = {
       data: {
         type: 'users',
         id,
         attributes: updates,
+        relationships:
+          updates.groupId !== undefined
+            ? {
+                group: updates.groupId
+                  ? { data: { type: 'groups', id: updates.groupId } }
+                  : { data: null },
+              }
+            : undefined,
       },
     };
 
