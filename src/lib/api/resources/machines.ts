@@ -40,6 +40,11 @@ export class MachineResource {
     hostname?: string;
     cores?: number;
     ip?: string;
+    memory?: number;
+    disk?: number;
+    metadata?: Record<string, unknown>;
+    userId?: string;
+    groupId?: string;
   }): Promise<KeygenResponse<Machine>> {
     const body = {
       data: {
@@ -51,11 +56,24 @@ export class MachineResource {
           hostname: machineData.hostname,
           cores: machineData.cores,
           ip: machineData.ip,
+          memory: machineData.memory,
+          disk: machineData.disk,
+          metadata: machineData.metadata,
         },
         relationships: {
           license: {
             data: { type: 'licenses', id: machineData.licenseId },
           },
+          ...(machineData.userId && {
+            user: {
+              data: { type: 'users', id: machineData.userId },
+            },
+          }),
+          ...(machineData.groupId && {
+            group: {
+              data: { type: 'groups', id: machineData.groupId },
+            },
+          }),
         },
       },
     };

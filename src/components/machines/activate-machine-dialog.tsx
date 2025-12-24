@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { Plus } from 'lucide-react'
 import { getKeygenApi } from '@/lib/api'
-import { License } from '@/lib/types/keygen'
+import { Group, License, User } from '@/lib/types/keygen'
 import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
 import { toast } from 'sonner'
 
@@ -34,6 +34,8 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [licenses, setLicenses] = useState<License[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [groups, setGroups] = useState<Group[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [formData, setFormData] = useState({
     fingerprint: '',
@@ -42,7 +44,12 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
     platform: '',
     hostname: '',
     cores: '',
-    ip: ''
+    memory: '',
+    disk: '',
+    ip: '',
+    metadata: '',
+    userId: 'none',
+    groupId: 'none'
   })
 
   const api = getKeygenApi()
@@ -55,11 +62,17 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
         limit: 100,
         // Only get active licenses
       })
+      const [usersResponse, groupsResponse] = await Promise.all([
+        api.users.list({ limit: 100 }),
+        api.groups.list({ limit: 100 }),
+      ])
       setLicenses(licensesResponse.data?.filter(license => 
         license.attributes.status === 'active'
       ) || [])
+      setUsers(usersResponse.data || [])
+      setGroups(groupsResponse.data || [])
     } catch (error: unknown) {
-      handleLoadError(error, 'licenses')
+      handleLoadError(error, 'machine activation data')
     } finally {
       setLoadingData(false)
     }
@@ -94,20 +107,30 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
         platform: formData.platform.trim() || undefined,
         hostname: formData.hostname.trim() || undefined,
         cores: formData.cores ? parseInt(formData.cores) : undefined,
-        ip: formData.ip.trim() || undefined
+        memory: formData.memory ? parseInt(formData.memory) : undefined,
+        disk: formData.disk ? parseInt(formData.disk) : undefined,
+        ip: formData.ip.trim() || undefined,
+        metadata: parseMetadata(formData.metadata),
+        userId: formData.userId === 'none' ? undefined : formData.userId,
+        groupId: formData.groupId === 'none' ? undefined : formData.groupId,
       })
 
       toast.success('Machine activated successfully')
       setOpen(false)
-      setFormData({
-        fingerprint: '',
-        licenseId: '',
-        name: '',
-        platform: '',
-        hostname: '',
-        cores: '',
-        ip: ''
-      })
+        setFormData({
+          fingerprint: '',
+          licenseId: '',
+          name: '',
+          platform: '',
+          hostname: '',
+          cores: '',
+          memory: '',
+          disk: '',
+          ip: '',
+          metadata: '',
+          userId: 'none',
+          groupId: 'none'
+        })
       onMachineActivated?.()
     } catch (error: unknown) {
       handleFormError(error, 'Machine')
@@ -226,6 +249,31 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="memory">Memory (MB)</Label>
+              <p className="text-xs text-muted-foreground">Optional memory amount to enforce memory-based limits.</p>
+              <Input
+                id="memory"
+                type="number"
+                placeholder="e.g., 16384"
+                value={formData.memory}
+                onChange={(e) => setFormData({ ...formData, memory: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="disk">Disk (MB)</Label>
+              <p className="text-xs text-muted-foreground">Optional disk capacity for quota-aware policies.</p>
+              <Input
+                id="disk"
+                type="number"
+                placeholder="e.g., 256000"
+                value={formData.disk}
+                onChange={(e) => setFormData({ ...formData, disk: e.target.value })}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="ip">IP Address</Label>
             <p className="text-xs text-muted-foreground">Optional last known IP address for audit trails.</p>
@@ -234,6 +282,60 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
               placeholder="e.g., 192.168.1.100"
               value={formData.ip}
               onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Owner (User, optional)</Label>
+              <p className="text-xs text-muted-foreground">Assign the machine owner to align with license scopes.</p>
+              <Select
+                value={formData.userId}
+                onValueChange={(value) => setFormData({ ...formData, userId: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select owner" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.attributes.email}
+                  </SelectItem>
+                ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Group (optional)</Label>
+              <p className="text-xs text-muted-foreground">Group association for quotas and reporting.</p>
+              <Select
+                value={formData.groupId}
+                onValueChange={(value) => setFormData({ ...formData, groupId: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select group" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    {group.attributes.name}
+                  </SelectItem>
+                ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="metadata">Metadata (JSON optional)</Label>
+            <p className="text-xs text-muted-foreground">Attach custom key/values (e.g., region, assetId).</p>
+            <Input
+              id="metadata"
+              placeholder='{"region":"us-east-1"}'
+              value={formData.metadata}
+              onChange={(e) => setFormData({ ...formData, metadata: e.target.value })}
             />
           </div>
 
@@ -250,4 +352,13 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
       </DialogContent>
     </Dialog>
   )
+}
+
+function parseMetadata(value: string) {
+  if (!value.trim()) return undefined
+  try {
+    return JSON.parse(value)
+  } catch {
+    return { note: value }
+  }
 }

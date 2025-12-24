@@ -120,11 +120,16 @@ export interface Machine extends KeygenResource {
     platform?: string;
     hostname?: string;
     cores?: number;
+    memory?: number;
+    disk?: number;
     ip?: string;
     requireHeartbeat: boolean;
     heartbeatStatus: 'alive' | 'dead' | 'not-started';
     heartbeatDuration?: number;
     lastHeartbeat?: string;
+    nextHeartbeat?: string | null;
+    lastCheckOut?: string | null;
+    metadata?: Record<string, unknown>;
     created: string;
     updated: string;
   };
