@@ -53,6 +53,8 @@ export function PolicyManagement() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [policyToDelete, setPolicyToDelete] = useState<Policy | null>(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [policyToEdit, setPolicyToEdit] = useState<Policy | null>(null)
   const api = getKeygenApi()
 
   const loadPolicies = useCallback(async () => {
@@ -104,6 +106,11 @@ export function PolicyManagement() {
     setDeleteDialogOpen(true)
   }
 
+  const handleEditPolicy = (policy: Policy) => {
+    setPolicyToEdit(policy)
+    setEditDialogOpen(true)
+  }
+
   const copyId = (id: string) => {
     navigator.clipboard.writeText(id)
     toast.success('Policy ID copied to clipboard')
@@ -119,7 +126,7 @@ export function PolicyManagement() {
             Manage licensing policies and rules for your products
           </p>
         </div>
-        <CreatePolicyDialog onPolicyCreated={loadPolicies} />
+        <CreatePolicyDialog onPolicyCreated={loadPolicies} onPolicySaved={loadPolicies} />
       </div>
 
       {/* Stats Cards */}
@@ -274,15 +281,18 @@ export function PolicyManagement() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm space-y-1">
-                      {policy.attributes.maxMachines && (
-                        <div>Machines: {policy.attributes.maxMachines}</div>
-                      )}
-                      {policy.attributes.maxProcesses && (
-                        <div>Processes: {policy.attributes.maxProcesses}</div>
-                      )}
-                      {policy.attributes.maxUses && (
-                        <div>Uses: {policy.attributes.maxUses}</div>
-                      )}
+                      {[
+                        { label: 'Machines', value: policy.attributes.maxMachines },
+                        { label: 'Processes', value: policy.attributes.maxProcesses },
+                        { label: 'Cores', value: policy.attributes.maxCores },
+                        { label: 'Uses', value: policy.attributes.maxUses },
+                      ]
+                        .filter(({ value }) => value != null)
+                        .map(({ label, value }) => (
+                          <div key={label}>
+                            {label}: {value}
+                          </div>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -303,7 +313,7 @@ export function PolicyManagement() {
                           Copy ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditPolicy(policy)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Policy
                         </DropdownMenuItem>
@@ -332,6 +342,25 @@ export function PolicyManagement() {
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           onPolicyDeleted={loadPolicies}
+        />
+      )}
+      {policyToEdit && (
+        <CreatePolicyDialog
+          mode="edit"
+          policy={policyToEdit}
+          open={editDialogOpen}
+          hideTrigger
+          onOpenChange={(open) => {
+            setEditDialogOpen(open)
+            if (!open) {
+              setPolicyToEdit(null)
+            }
+          }}
+          onPolicySaved={() => {
+            loadPolicies()
+            setPolicyToEdit(null)
+            setEditDialogOpen(false)
+          }}
         />
       )}
     </div>

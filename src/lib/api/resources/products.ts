@@ -77,4 +77,16 @@ export class ProductResource {
       method: 'DELETE'
     });
   }
+
+  /**
+   * Generate a product token
+   */
+  async generateToken(productId: string): Promise<string | undefined> {
+    const response = await this.client.request(`/products/${productId}/tokens`, {
+      method: 'POST',
+    });
+
+    const tokenData = (response as any)?.data?.attributes?.token;
+    return tokenData;
+  }
 }

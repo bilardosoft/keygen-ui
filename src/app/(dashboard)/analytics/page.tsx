@@ -1,4 +1,7 @@
+"use client"
+
 import { ProtectedRoute } from "@/components/auth/protected-route"
+import { RequestLogsPanel } from "@/components/analytics/request-logs-panel"
 
 export default function AnalyticsPage() {
   return (
@@ -10,12 +13,7 @@ export default function AnalyticsPage() {
             View usage analytics and insights for your licenses and products.
           </p>
         </div>
-        <div className="rounded-lg border bg-card p-8 text-center">
-          <h3 className="text-lg font-semibold mb-2">Analytics Dashboard</h3>
-          <p className="text-muted-foreground">
-            Analytics features are coming soon. Track license usage, machine activations, and user engagement metrics.
-          </p>
-        </div>
+        <RequestLogsPanel />
       </div>
     </ProtectedRoute>
   )
