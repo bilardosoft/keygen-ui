@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -25,6 +25,7 @@ import { Plus, Shield, User } from 'lucide-react'
 import { getKeygenApi } from '@/lib/api'
 import { toast } from 'sonner'
 import { handleFormError } from '@/lib/utils/error-handling'
+import { Group } from '@/lib/types/keygen'
 
 interface CreateUserDialogProps {
   onUserCreated?: () => void
@@ -33,6 +34,8 @@ interface CreateUserDialogProps {
 export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [groups, setGroups] = useState<Group[]>([])
+  const [loadingGroups, setLoadingGroups] = useState(true)
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -40,10 +43,26 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
     role: 'user' as 'user' | 'admin' | 'developer' | 'sales-agent' | 'support-agent' | 'read-only',
     password: '',
     confirmPassword: '',
-    metadata: ''
+    metadata: '',
+    groupId: '',
+    permissions: '',
   })
 
   const api = getKeygenApi()
+
+  useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const res = await api.groups.list({ limit: 100 })
+        setGroups(res.data || [])
+      } catch (error) {
+        // silently ignore load failure for optional field
+      } finally {
+        setLoadingGroups(false)
+      }
+    }
+    loadGroups()
+  }, [api.groups])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,7 +106,14 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         lastName: formData.lastName || undefined,
         role: formData.role,
         password: formData.password,
-        metadata
+        metadata,
+        groupId: formData.groupId || undefined,
+        permissions: formData.permissions
+          ? formData.permissions
+              .split(',')
+              .map((p) => p.trim())
+              .filter(Boolean)
+          : undefined,
       })
 
       toast.success('User created successfully')
@@ -109,7 +135,9 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       role: 'user',
       password: '',
       confirmPassword: '',
-      metadata: ''
+      metadata: '',
+      groupId: '',
+      permissions: '',
     })
   }
 
@@ -197,6 +225,27 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="group">Group</Label>
+              <p className="text-xs text-muted-foreground">Optional: assign user to a group.</p>
+              <Select
+                value={formData.groupId}
+                onValueChange={(value) => setFormData({ ...formData, groupId: value })}
+                disabled={loading || loadingGroups}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No group" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No group</SelectItem>
+                  {groups.map((g) => (
+                    <SelectItem key={g.id} value={g.id}>
+                      {g.attributes.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -223,8 +272,8 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password *</Label>
               <p className="text-xs text-muted-foreground">Initial password; user can change it after signing in.</p>
               <Input
                 id="password"
@@ -247,6 +296,18 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="permissions">Permissions</Label>
+            <p className="text-xs text-muted-foreground">Comma-separated permissions (e.g., *, licenses:read).</p>
+            <Input
+              id="permissions"
+              placeholder="*, licenses:read"
+              value={formData.permissions}
+              onChange={(e) => setFormData({ ...formData, permissions: e.target.value })}
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-2">

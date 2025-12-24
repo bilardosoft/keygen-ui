@@ -45,16 +45,24 @@ export class GroupResource {
     maxLicenses?: number;
     maxMachines?: number;
     maxUsers?: number;
+    environmentId?: string;
+    metadata?: Record<string, unknown>;
   }): Promise<KeygenResponse<Group>> {
     const body = {
       data: {
         type: 'groups',
         attributes: {
           name: groupData.name.trim(),
-          ...(groupData.maxLicenses && { maxLicenses: groupData.maxLicenses }),
-          ...(groupData.maxMachines && { maxMachines: groupData.maxMachines }),
-          ...(groupData.maxUsers && { maxUsers: groupData.maxUsers }),
+          ...(groupData.maxLicenses !== undefined && { maxLicenses: groupData.maxLicenses }),
+          ...(groupData.maxMachines !== undefined && { maxMachines: groupData.maxMachines }),
+          ...(groupData.maxUsers !== undefined && { maxUsers: groupData.maxUsers }),
+          ...(groupData.metadata !== undefined && { metadata: groupData.metadata }),
         },
+        relationships: groupData.environmentId
+          ? {
+              environment: { data: { type: 'environments', id: groupData.environmentId } },
+            }
+          : undefined,
       },
     };
 
@@ -72,6 +80,8 @@ export class GroupResource {
     maxLicenses?: number;
     maxMachines?: number;
     maxUsers?: number;
+    environmentId?: string | null;
+    metadata?: Record<string, unknown>;
   }): Promise<KeygenResponse<Group>> {
     const body = {
       data: {
@@ -82,7 +92,16 @@ export class GroupResource {
           ...(updates.maxLicenses !== undefined && { maxLicenses: updates.maxLicenses }),
           ...(updates.maxMachines !== undefined && { maxMachines: updates.maxMachines }),
           ...(updates.maxUsers !== undefined && { maxUsers: updates.maxUsers }),
+          ...(updates.metadata !== undefined && { metadata: updates.metadata }),
         },
+        relationships:
+          updates.environmentId !== undefined
+            ? {
+                environment: updates.environmentId
+                  ? { data: { type: 'environments', id: updates.environmentId } }
+                  : { data: null },
+              }
+            : undefined,
       },
     };
 

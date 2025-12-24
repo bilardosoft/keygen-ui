@@ -75,11 +75,17 @@ export interface User extends KeygenResource {
     fullName?: string;
     email: string;
     role: 'admin' | 'developer' | 'sales-agent' | 'support-agent' | 'read-only' | 'user';
-    status: 'active' | 'inactive' | 'banned';
+    status?: 'ACTIVE' | 'INACTIVE' | 'BANNED';
+    permissions?: string[];
+    metadata?: Record<string, unknown>;
     banned?: boolean; // Legacy property for backward compatibility
     lastSignedInAt?: string;
     created: string;
     updated: string;
+  };
+  relationships?: {
+    group?: KeygenRelationship;
+    environment?: KeygenRelationship;
   };
 }
 
@@ -236,8 +242,12 @@ export interface Group extends KeygenResource {
     maxLicenses?: number;
     maxMachines?: number;
     maxUsers?: number;
+    metadata?: Record<string, unknown>;
     created: string;
     updated: string;
+  };
+  relationships?: {
+    environment?: KeygenRelationship;
   };
 }
 
