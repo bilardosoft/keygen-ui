@@ -76,7 +76,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
     } finally {
       setLoadingData(false)
     }
-  }, [api.licenses])
+  }, [api.groups, api.licenses, api.users])
 
   useEffect(() => {
     if (open) {

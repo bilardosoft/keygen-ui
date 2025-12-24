@@ -146,9 +146,9 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
   const [products, setProducts] = useState<Product[]>([])
   const [fingerprint, setFingerprint] = useState('')
   const [name, setName] = useState('')
-  const [machineId, setMachineId] = useState('')
-  const [licenseId, setLicenseId] = useState('')
-  const [productId, setProductId] = useState('')
+  const [machineId, setMachineId] = useState('none')
+  const [licenseId, setLicenseId] = useState('none')
+  const [productId, setProductId] = useState('none')
   const [metadata, setMetadata] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -182,9 +182,9 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
       await api.components.create({
         fingerprint,
         name: name || undefined,
-        machineId: machineId || undefined,
-        licenseId: licenseId || undefined,
-        productId: productId || undefined,
+        machineId: machineId === 'none' ? undefined : machineId,
+        licenseId: licenseId === 'none' ? undefined : licenseId,
+        productId: productId === 'none' ? undefined : productId,
         metadata: metadata
           ? (() => {
               try {
@@ -199,9 +199,9 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
       setOpen(false)
       setFingerprint('')
       setName('')
-      setMachineId('')
-      setLicenseId('')
-      setProductId('')
+      setMachineId('none')
+      setLicenseId('none')
+      setProductId('none')
       setMetadata('')
       toast.success('Component created')
     } catch (error: unknown) {
@@ -253,7 +253,7 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
                   <SelectValue placeholder="Select machine" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {machines.map(m => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.attributes.name || m.attributes.fingerprint}
@@ -270,7 +270,7 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
                   <SelectValue placeholder="Select license" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {licenses.map(l => (
                     <SelectItem key={l.id} value={l.id}>
                       {l.attributes.key}
@@ -288,7 +288,7 @@ function CreateComponentDialog({ onCreated }: { onCreated: () => void }) {
                 <SelectValue placeholder="Select product" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {products.map(p => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.attributes.name}

@@ -30,7 +30,7 @@ export function CreateGroupDialog({
     maxLicenses: '',
     maxMachines: '',
     maxUsers: '',
-    environmentId: '',
+    environmentId: 'none',
     metadata: ''
   })
 
@@ -80,7 +80,7 @@ export function CreateGroupDialog({
         metadata?: Record<string, unknown>;
       } = {
         name: formData.name.trim(),
-        environmentId: formData.environmentId || undefined,
+        environmentId: formData.environmentId === 'none' ? undefined : formData.environmentId,
         metadata,
       }
 
@@ -103,7 +103,7 @@ export function CreateGroupDialog({
         maxLicenses: '',
         maxMachines: '',
         maxUsers: '',
-        environmentId: '',
+        environmentId: 'none',
         metadata: ''
       })
       
@@ -159,7 +159,7 @@ export function CreateGroupDialog({
                   <SelectValue placeholder="No environment" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No environment</SelectItem>
+                  <SelectItem value="none">No environment</SelectItem>
                   {environments.map((env) => (
                     <SelectItem key={env.id} value={env.id}>
                       {env.attributes.name} ({env.attributes.code})
@@ -213,7 +213,9 @@ export function CreateGroupDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="metadata">Metadata</Label>
-              <p className="text-xs text-muted-foreground">Optional JSON metadata (e.g., {"{"}"tier":"enterprise"{"}"}).</p>
+              <p className="text-xs text-muted-foreground">
+                Optional JSON metadata (e.g., {'{"tier":"enterprise"}'}).
+              </p>
               <Input
                 id="metadata"
                 value={formData.metadata}

@@ -44,7 +44,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
     password: '',
     confirmPassword: '',
     metadata: '',
-    groupId: '',
+    groupId: 'none',
     permissions: '',
   })
 
@@ -55,7 +55,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       try {
         const res = await api.groups.list({ limit: 100 })
         setGroups(res.data || [])
-      } catch (error) {
+      } catch {
         // silently ignore load failure for optional field
       } finally {
         setLoadingGroups(false)
@@ -107,7 +107,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         role: formData.role,
         password: formData.password,
         metadata,
-        groupId: formData.groupId || undefined,
+        groupId: formData.groupId === 'none' ? undefined : formData.groupId,
         permissions: formData.permissions
           ? formData.permissions
               .split(',')
@@ -136,7 +136,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       password: '',
       confirmPassword: '',
       metadata: '',
-      groupId: '',
+      groupId: 'none',
       permissions: '',
     })
   }
@@ -237,7 +237,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
                   <SelectValue placeholder="No group" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No group</SelectItem>
+                  <SelectItem value="none">No group</SelectItem>
                   {groups.map((g) => (
                     <SelectItem key={g.id} value={g.id}>
                       {g.attributes.name}
