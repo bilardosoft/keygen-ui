@@ -281,18 +281,18 @@ export function PolicyManagement() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm space-y-1">
-                      {policy.attributes.maxMachines != null && (
-                        <div>Machines: {policy.attributes.maxMachines}</div>
-                      )}
-                      {policy.attributes.maxProcesses != null && (
-                        <div>Processes: {policy.attributes.maxProcesses}</div>
-                      )}
-                      {policy.attributes.maxCores != null && (
-                        <div>Cores: {policy.attributes.maxCores}</div>
-                      )}
-                      {policy.attributes.maxUses != null && (
-                        <div>Uses: {policy.attributes.maxUses}</div>
-                      )}
+                      {[
+                        { label: 'Machines', value: policy.attributes.maxMachines },
+                        { label: 'Processes', value: policy.attributes.maxProcesses },
+                        { label: 'Cores', value: policy.attributes.maxCores },
+                        { label: 'Uses', value: policy.attributes.maxUses },
+                      ]
+                        .filter(({ value }) => value != null)
+                        .map(({ label, value }) => (
+                          <div key={label}>
+                            {label}: {value}
+                          </div>
+                        ))}
                     </div>
                   </TableCell>
                   <TableCell>

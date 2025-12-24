@@ -223,7 +223,7 @@ export function CreatePolicyDialog({
   }, [formData.metadata])
 
   const buildPayload = () => {
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: formData.name.trim(),
       productId: formData.productId,
       duration: numberFromInput(formData.duration),
@@ -236,16 +236,6 @@ export function CreatePolicyDialog({
       maxCores: numberFromInput(formData.maxCores),
       maxUses: numberFromInput(formData.maxUses),
       requireHeartbeat: formData.requireHeartbeat,
-      heartbeatDuration: formData.requireHeartbeat
-        ? numberFromInput(formData.heartbeatDuration)
-        : undefined,
-      heartbeatCullStrategy: formData.requireHeartbeat
-        ? formData.heartbeatCullStrategy
-        : undefined,
-      heartbeatResurrectionStrategy: formData.requireHeartbeat
-        ? formData.heartbeatResurrectionStrategy
-        : undefined,
-      heartbeatBasis: formData.requireHeartbeat ? formData.heartbeatBasis : undefined,
       machineUniquenessStrategy: formData.machineUniquenessStrategy,
       machineMatchingStrategy: formData.machineMatchingStrategy,
       expirationStrategy: formData.expirationStrategy,
@@ -259,14 +249,42 @@ export function CreatePolicyDialog({
       metadata: parsedMetadata,
     }
 
-    if (!payload.requireHeartbeat) {
-      delete (payload as Record<string, unknown>).heartbeatDuration
-      delete (payload as Record<string, unknown>).heartbeatCullStrategy
-      delete (payload as Record<string, unknown>).heartbeatResurrectionStrategy
-      delete (payload as Record<string, unknown>).heartbeatBasis
+    if (formData.requireHeartbeat) {
+      payload.heartbeatDuration = numberFromInput(formData.heartbeatDuration)
+      payload.heartbeatCullStrategy = formData.heartbeatCullStrategy
+      payload.heartbeatResurrectionStrategy = formData.heartbeatResurrectionStrategy
+      payload.heartbeatBasis = formData.heartbeatBasis
     }
 
-    return payload
+    return payload as {
+      name: string
+      productId: string
+      duration?: number
+      strict: boolean
+      floating: boolean
+      concurrent: boolean
+      protected: boolean
+      maxMachines?: number
+      maxProcesses?: number
+      maxCores?: number
+      maxUses?: number
+      requireHeartbeat: boolean
+      heartbeatDuration?: number
+      heartbeatCullStrategy?: 'DEACTIVATE_DEAD' | 'KEEP_DEAD'
+      heartbeatResurrectionStrategy?: 'NO_REVIVE' | 'ALWAYS_REVIVE'
+      heartbeatBasis?: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION'
+      machineUniquenessStrategy: PolicyFormState['machineUniquenessStrategy']
+      machineMatchingStrategy: PolicyFormState['machineMatchingStrategy']
+      expirationStrategy: PolicyFormState['expirationStrategy']
+      expirationBasis: PolicyFormState['expirationBasis']
+      renewalBasis: PolicyFormState['renewalBasis']
+      transferStrategy: PolicyFormState['transferStrategy']
+      authenticationStrategy: PolicyFormState['authenticationStrategy']
+      machineLeasingStrategy: PolicyFormState['machineLeasingStrategy']
+      processLeasingStrategy: PolicyFormState['processLeasingStrategy']
+      overageStrategy: PolicyFormState['overageStrategy']
+      metadata?: Record<string, unknown>
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -297,7 +315,7 @@ export function CreatePolicyDialog({
       setLoading(true)
 
       if (isEdit && policy) {
-        const { productId: _omitProduct, ...updatePayload } = payload
+        const { productId: omittedProductId, ...updatePayload } = payload
         await api.policies.update(policy.id, updatePayload)
         toast.success('Policy updated successfully')
       } else {
