@@ -31,8 +31,7 @@ export const normalizePolicyAttributes = (attrs: PolicyAttributes): PolicyAttrib
     maxUses: pickAttribute<number | undefined>(record, 'maxUses', 'max_uses'),
     requireHeartbeat:
       pickAttribute<boolean | undefined>(record, 'requireHeartbeat', 'require_heartbeat') ??
-      attrs.requireHeartbeat ??
-      false,
+      attrs.requireHeartbeat,
     heartbeatDuration:
       pickAttribute<number | undefined>(record, 'heartbeatDuration', 'heartbeat_duration') ??
       attrs.heartbeatDuration,
