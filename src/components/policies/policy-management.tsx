@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { normalizePolicyAttributes } from '@/lib/utils/policy'
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -74,14 +75,15 @@ export function PolicyManagement() {
   }, [loadPolicies])
 
   const filteredPolicies = policies.filter(policy => {
+    const attrs = normalizePolicyAttributes(policy.attributes)
     const matchesSearch = !searchTerm || 
-      policy.attributes.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      attrs.name?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesType = typeFilter === 'all' || 
-      (typeFilter === 'floating' && policy.attributes.floating) ||
-      (typeFilter === 'node-locked' && !policy.attributes.floating) ||
-      (typeFilter === 'protected' && policy.attributes.protected) ||
-      (typeFilter === 'strict' && policy.attributes.strict)
+      (typeFilter === 'floating' && attrs.floating) ||
+      (typeFilter === 'node-locked' && !attrs.floating) ||
+      (typeFilter === 'protected' && attrs.protected) ||
+      (typeFilter === 'strict' && attrs.strict)
     
     return matchesSearch && matchesType
   })
@@ -240,96 +242,100 @@ export function PolicyManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredPolicies.map((policy) => (
-                <TableRow key={policy.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{policy.attributes.name}</div>
-                      <div className="text-sm text-muted-foreground font-mono">
-                        {policy.id}
+              filteredPolicies.map((policy) => {
+                const attrs = normalizePolicyAttributes(policy.attributes)
+
+                return (
+                  <TableRow key={policy.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{attrs.name}</div>
+                        <div className="text-sm text-muted-foreground font-mono">
+                          {policy.id}
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {policy.attributes.floating && (
-                        <Badge variant="outline" className="text-xs">
-                          Floating
-                        </Badge>
-                      )}
-                      {policy.attributes.strict && (
-                        <Badge variant="outline" className="text-xs">
-                          Strict
-                        </Badge>
-                      )}
-                      {policy.attributes.protected && (
-                        <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
-                          Protected
-                        </Badge>
-                      )}
-                      {policy.attributes.requireHeartbeat && (
-                        <Badge variant="outline" className="text-xs">
-                          Heartbeat
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`text-sm ${policy.attributes.duration ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      {getExpirationText(policy.attributes.duration)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm space-y-1">
-                      {[
-                        { label: 'Machines', value: policy.attributes.maxMachines },
-                        { label: 'Processes', value: policy.attributes.maxProcesses },
-                        { label: 'Cores', value: policy.attributes.maxCores },
-                        { label: 'Uses', value: policy.attributes.maxUses },
-                      ]
-                        .filter(({ value }) => value != null)
-                        .map(({ label, value }) => (
-                          <div key={label}>
-                            {label}: {value}
-                          </div>
-                        ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(policy.attributes.created).toLocaleDateString()}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => copyId(policy.id)}>
-                          Copy ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEditPolicy(policy)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Policy
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => handleDeletePolicy(policy)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {attrs.floating && (
+                          <Badge variant="outline" className="text-xs">
+                            Floating
+                          </Badge>
+                        )}
+                        {attrs.strict && (
+                          <Badge variant="outline" className="text-xs">
+                            Strict
+                          </Badge>
+                        )}
+                        {attrs.protected && (
+                          <Badge variant="outline" className="text-xs bg-orange-100 text-orange-800 border-orange-200">
+                            Protected
+                          </Badge>
+                        )}
+                        {attrs.requireHeartbeat && (
+                          <Badge variant="outline" className="text-xs">
+                            Heartbeat
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-sm ${attrs.duration ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        {getExpirationText(attrs.duration)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm space-y-1">
+                        {[
+                          { label: 'Machines', value: attrs.maxMachines },
+                          { label: 'Processes', value: attrs.maxProcesses },
+                          { label: 'Cores', value: attrs.maxCores },
+                          { label: 'Uses', value: attrs.maxUses },
+                        ]
+                          .filter(({ value }) => value != null)
+                          .map(({ label, value }) => (
+                            <div key={label}>
+                              {label}: {value}
+                            </div>
+                          ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(attrs.created).toLocaleDateString()}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => copyId(policy.id)}>
+                            Copy ID
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleEditPolicy(policy)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Policy
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => handleDeletePolicy(policy)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>

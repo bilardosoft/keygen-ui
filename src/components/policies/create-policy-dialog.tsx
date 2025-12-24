@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { normalizePolicyAttributes } from '@/lib/utils/policy'
 
 type PolicyDialogMode = 'create' | 'edit'
 
@@ -117,7 +118,7 @@ interface CreatePolicyDialogProps {
 const toFormState = (policy?: Policy | null): PolicyFormState => {
   if (!policy) return defaultFormState
 
-  const attrs = policy.attributes
+  const attrs = normalizePolicyAttributes(policy.attributes)
   const relationships = policy.relationships?.product?.data
 
   return {
