@@ -315,7 +315,8 @@ export function CreatePolicyDialog({
       setLoading(true)
 
       if (isEdit && policy) {
-        const { productId: omittedProductId, ...updatePayload } = payload
+        const { productId: _omittedProductId, ...updatePayload } = payload
+        void _omittedProductId
         await api.policies.update(policy.id, updatePayload)
         toast.success('Policy updated successfully')
       } else {

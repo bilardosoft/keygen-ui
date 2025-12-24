@@ -86,7 +86,7 @@ export class ProductResource {
       method: 'POST',
     });
 
-    const tokenData = (response as any)?.data?.attributes?.token;
+    const tokenData = (response as { data?: { attributes?: { token?: string } } })?.data?.attributes?.token;
     return tokenData;
   }
 }

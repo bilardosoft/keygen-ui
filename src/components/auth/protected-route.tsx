@@ -11,13 +11,15 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true') {
-    return <>{children}</>;
-  }
+  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
   const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (bypassAuth) {
+      return;
+    }
+
     if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
@@ -28,7 +30,11 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
       router.push('/dashboard');
       return;
     }
-  }, [loading, isAuthenticated, user, router, requireAdmin]);
+  }, [bypassAuth, loading, isAuthenticated, user, router, requireAdmin]);
+
+  if (bypassAuth) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
