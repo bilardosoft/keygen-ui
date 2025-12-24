@@ -32,7 +32,7 @@ export function EditGroupDialog({
     maxLicenses: '',
     maxMachines: '',
     maxUsers: '',
-    environmentId: '',
+    environmentId: 'none',
     metadata: ''
   })
 
@@ -50,7 +50,7 @@ export function EditGroupDialog({
           (group.relationships?.environment?.data &&
             'id' in group.relationships.environment.data &&
             group.relationships.environment.data.id) ||
-          '',
+          'none',
         metadata: group.attributes.metadata ? JSON.stringify(group.attributes.metadata, null, 2) : '',
       })
     }
@@ -100,7 +100,7 @@ export function EditGroupDialog({
         metadata?: Record<string, unknown>;
       } = {
         name: formData.name.trim(),
-        environmentId: formData.environmentId || null,
+        environmentId: formData.environmentId === 'none' ? null : formData.environmentId,
         metadata,
       }
 
@@ -168,7 +168,7 @@ export function EditGroupDialog({
                   <SelectValue placeholder="No environment" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No environment</SelectItem>
+                  <SelectItem value="none">No environment</SelectItem>
                   {environments.map((env) => (
                     <SelectItem key={env.id} value={env.id}>
                       {env.attributes.name} ({env.attributes.code})

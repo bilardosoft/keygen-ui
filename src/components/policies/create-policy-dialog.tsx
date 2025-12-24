@@ -97,7 +97,7 @@ const defaultFormState: PolicyFormState = {
   duration: '',
   strict: false,
   floating: false,
-  scheme: '',
+  scheme: 'none',
   protected: false,
   requireProductScope: false,
   requirePolicyScope: false,
@@ -136,6 +136,27 @@ const defaultFormState: PolicyFormState = {
   metadata: '',
 }
 
+type ScopeFlagKey =
+  | 'requireProductScope'
+  | 'requirePolicyScope'
+  | 'requireMachineScope'
+  | 'requireFingerprintScope'
+  | 'requireComponentsScope'
+  | 'requireUserScope'
+  | 'requireChecksumScope'
+  | 'requireVersionScope'
+
+const scopeFlagOptions: Array<{ key: ScopeFlagKey; label: string }> = [
+  { key: 'requireProductScope', label: 'Require product scope' },
+  { key: 'requirePolicyScope', label: 'Require policy scope' },
+  { key: 'requireMachineScope', label: 'Require machine scope' },
+  { key: 'requireFingerprintScope', label: 'Require fingerprint scope' },
+  { key: 'requireComponentsScope', label: 'Require components scope' },
+  { key: 'requireUserScope', label: 'Require user scope' },
+  { key: 'requireChecksumScope', label: 'Require checksum scope' },
+  { key: 'requireVersionScope', label: 'Require version scope' },
+]
+
 interface CreatePolicyDialogProps {
   mode?: PolicyDialogMode
   policy?: Policy | null
@@ -159,7 +180,7 @@ const toFormState = (policy?: Policy | null): PolicyFormState => {
     duration: attrs.duration ? attrs.duration.toString() : '',
     strict: !!attrs.strict,
     floating: !!attrs.floating,
-    scheme: attrs.scheme ?? '',
+    scheme: attrs.scheme ?? 'none',
     protected: !!attrs.protected,
     requireProductScope: !!attrs.requireProductScope,
     requirePolicyScope: !!attrs.requirePolicyScope,
@@ -275,7 +296,7 @@ export function CreatePolicyDialog({
       duration: numberFromInput(formData.duration),
       strict: formData.strict,
       floating: formData.floating,
-      scheme: formData.scheme || undefined,
+      scheme: formData.scheme === 'none' ? undefined : formData.scheme,
       protected: formData.protected,
       requireProductScope: formData.requireProductScope,
       requirePolicyScope: formData.requirePolicyScope,
@@ -541,16 +562,16 @@ export function CreatePolicyDialog({
                   value={formData.scheme}
                   onValueChange={(value) => setFormData({ ...formData, scheme: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="None (no signing/encryption)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    <SelectItem value="ED25519_SIGN">ED25519_SIGN</SelectItem>
-                    <SelectItem value="ECDSA_P256_SIGN">ECDSA_P256_SIGN</SelectItem>
-                    <SelectItem value="RSA_2048_PKCS1_PSS_SIGN_V2">RSA_2048_PKCS1_PSS_SIGN_V2</SelectItem>
-                    <SelectItem value="RSA_2048_PKCS1_SIGN_V2">RSA_2048_PKCS1_SIGN_V2</SelectItem>
-                    <SelectItem value="RSA_2048_PKCS1_ENCRYPT">RSA_2048_PKCS1_ENCRYPT</SelectItem>
+                <SelectTrigger>
+                  <SelectValue placeholder="None (no signing/encryption)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="ED25519_SIGN">ED25519_SIGN</SelectItem>
+                  <SelectItem value="ECDSA_P256_SIGN">ECDSA_P256_SIGN</SelectItem>
+                  <SelectItem value="RSA_2048_PKCS1_PSS_SIGN_V2">RSA_2048_PKCS1_PSS_SIGN_V2</SelectItem>
+                  <SelectItem value="RSA_2048_PKCS1_SIGN_V2">RSA_2048_PKCS1_SIGN_V2</SelectItem>
+                  <SelectItem value="RSA_2048_PKCS1_ENCRYPT">RSA_2048_PKCS1_ENCRYPT</SelectItem>
                     <SelectItem value="RSA_2048_JWT_RS256">RSA_2048_JWT_RS256</SelectItem>
                   </SelectContent>
                 </Select>
@@ -571,21 +592,12 @@ export function CreatePolicyDialog({
             <h4 className="text-sm font-medium">Scope & Check-in Requirements</h4>
             <p className="text-xs text-muted-foreground">Enforce scopes during validation and periodic check-ins.</p>
             <div className="grid grid-cols-2 gap-3">
-              {[
-                ['requireProductScope', 'Require product scope'],
-                ['requirePolicyScope', 'Require policy scope'],
-                ['requireMachineScope', 'Require machine scope'],
-                ['requireFingerprintScope', 'Require fingerprint scope'],
-                ['requireComponentsScope', 'Require components scope'],
-                ['requireUserScope', 'Require user scope'],
-                ['requireChecksumScope', 'Require checksum scope'],
-                ['requireVersionScope', 'Require version scope'],
-              ].map(([key, label]) => (
+              {scopeFlagOptions.map(({ key, label }) => (
                 <label key={key} className="flex items-center space-x-2 text-sm">
                   <Checkbox
-                    checked={(formData as any)[key]}
+                    checked={formData[key]}
                     onCheckedChange={(checked) =>
-                      setFormData({ ...formData, [key]: !!checked } as PolicyFormState)
+                      setFormData({ ...formData, [key]: !!checked })
                     }
                   />
                   <span>{label}</span>
