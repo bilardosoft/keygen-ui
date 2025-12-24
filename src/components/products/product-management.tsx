@@ -43,7 +43,8 @@ import {
   ExternalLink,
 } from 'lucide-react'
 // No direct toasts here; using centralized error handlers where needed
-import { handleLoadError } from '@/lib/utils/error-handling'
+import { handleCrudError, handleLoadError } from '@/lib/utils/error-handling'
+import { toast } from 'sonner'
 import { CreateProductDialog } from './create-product-dialog'
 import { EditProductDialog } from './edit-product-dialog'
 import { DeleteProductDialog } from './delete-product-dialog'
@@ -145,6 +146,22 @@ export function ProductManagement() {
   const handleEditProduct = (product: Product) => {
     setEditProduct(product)
     setEditDialogOpen(true)
+  }
+
+  const handleGenerateProductToken = async (product: Product) => {
+    try {
+      const token = await api.products.generateToken(product.id)
+      if (token) {
+        await navigator.clipboard.writeText(token)
+        toast.success('Product token copied to clipboard')
+      } else {
+        toast.error('Failed to generate product token')
+      }
+    } catch (error: unknown) {
+      handleCrudError(error, 'create', 'Product token', {
+        customMessage: 'Failed to generate product token',
+      })
+    }
   }
 
   return (
@@ -347,6 +364,10 @@ export function ProductManagement() {
                           <DropdownMenuItem onClick={() => handleEditProduct(product)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Product
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleGenerateProductToken(product)}>
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Generate Product Token
                           </DropdownMenuItem>
                           {product.attributes.url && (
                             <DropdownMenuItem onClick={() => openUrl(product.attributes.url!)}>
