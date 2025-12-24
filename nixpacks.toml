@@ -1,21 +1,25 @@
 [variables]
 NODE_ENV = "production"
-PORT = "3000"
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "pnpm"]
+# pnpm'i Nix'ten kuruyoruz, Nginx'i de ekliyoruz
+nixPkgs = ["nodejs_22", "pnpm", "nginx"]
 
 [phases.install]
 cmds = [
+  "pnpm --version",
   "pnpm install --frozen-lockfile"
 ]
 
 [phases.build]
+# Vite (dist) → CRA (build) uyumluluğu
 cmds = [
-  "pnpm run build"
+  "pnpm build",
+  "if [ -d dist ] && [ ! -d build ]; then mv dist build; fi"
 ]
 
-[phases.start]
+
+[start]
 cmds = [
-  "pnpm run start"
+  "pnpm start"
 ]
