@@ -45,8 +45,8 @@ export function EditLicenseDialog({
     maxDisk: current.attributes.maxDisk?.toString() || '',
     maxProcesses: current.attributes.maxProcesses?.toString() || '',
     maxUsers: current.attributes.maxUsers?.toString() || '',
-    protected: Boolean(current.attributes.protected),
-    suspended: Boolean(current.attributes.suspended),
+    protected: current.attributes.protected ?? false,
+    suspended: current.attributes.suspended ?? false,
     metadata: current.attributes.metadata ? JSON.stringify(current.attributes.metadata, null, 2) : ''
   })
 

@@ -34,6 +34,9 @@ const serializeLicenseAttributes = (attributes: LicenseAttributesInput) => {
 
   const addIfDefined = (key: string, value: unknown) => {
     if (value !== undefined) {
+      if (typeof value === 'number' && value < 0) {
+        return;
+      }
       serialized[key] = value;
     }
   };
