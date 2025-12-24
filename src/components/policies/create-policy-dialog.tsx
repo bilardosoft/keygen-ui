@@ -361,6 +361,7 @@ export function CreatePolicyDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Policy Name *</Label>
+                <p className="text-xs text-muted-foreground">Human-friendly title shown on licenses and dashboards.</p>
                 <Input
                   id="name"
                   placeholder="e.g., Standard License Policy"
@@ -371,6 +372,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="product">Product *</Label>
+                <p className="text-xs text-muted-foreground">Select which product this policy governs.</p>
                 <Select
                   value={formData.productId}
                   onValueChange={(value) => setFormData({ ...formData, productId: value })}
@@ -398,6 +400,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="duration">Duration (seconds)</Label>
+                <p className="text-xs text-muted-foreground">Set how long licenses remain valid; leave blank for perpetual.</p>
                 <Input
                   id="duration"
                   type="number"
@@ -412,6 +415,7 @@ export function CreatePolicyDialog({
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Policy Type</h4>
+            <p className="text-xs text-muted-foreground">Control how strictly activations are validated and shared.</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -422,6 +426,7 @@ export function CreatePolicyDialog({
                   }
                 />
                 <Label htmlFor="strict">Strict validation</Label>
+                <p className="text-xs text-muted-foreground">Require signatures and tighter checks on each validation.</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -432,6 +437,7 @@ export function CreatePolicyDialog({
                   }
                 />
                 <Label htmlFor="floating">Floating license</Label>
+                <p className="text-xs text-muted-foreground">Allow seats to be leased and returned instead of permanently bound.</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -442,6 +448,7 @@ export function CreatePolicyDialog({
                   }
                 />
                 <Label htmlFor="concurrent">Allow concurrent usage</Label>
+                <p className="text-xs text-muted-foreground">Permit the same license key to be used simultaneously up to limits.</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -452,12 +459,14 @@ export function CreatePolicyDialog({
                   }
                 />
                 <Label htmlFor="protected">Write-protected</Label>
+                <p className="text-xs text-muted-foreground">Prevents edits to the license after creation unless explicitly allowed.</p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Heartbeat Settings</h4>
+            <p className="text-xs text-muted-foreground">Configure periodic check-ins to keep licenses active.</p>
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -468,12 +477,14 @@ export function CreatePolicyDialog({
                   }
                 />
                 <Label htmlFor="requireHeartbeat">Require heartbeat</Label>
+                <p className="text-xs text-muted-foreground">Enforce periodic validation; licenses expire if heartbeats stop.</p>
               </div>
 
               {formData.requireHeartbeat && (
                 <div className="ml-6 grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="heartbeatDuration">Heartbeat Duration (seconds)</Label>
+                    <p className="text-xs text-muted-foreground">Maximum allowed time between heartbeats.</p>
                     <Input
                       id="heartbeatDuration"
                       type="number"
@@ -485,6 +496,7 @@ export function CreatePolicyDialog({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="heartbeatCullStrategy">Cull Strategy</Label>
+                    <p className="text-xs text-muted-foreground">Choose what happens when heartbeats stop.</p>
                     <Select
                       value={formData.heartbeatCullStrategy}
                       onValueChange={(value: 'DEACTIVATE_DEAD' | 'KEEP_DEAD') =>
@@ -502,6 +514,7 @@ export function CreatePolicyDialog({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="heartbeatBasis">Heartbeat Basis</Label>
+                    <p className="text-xs text-muted-foreground">Defines when heartbeat windows start.</p>
                     <Select
                       value={formData.heartbeatBasis}
                       onValueChange={(value: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION') =>
@@ -526,9 +539,11 @@ export function CreatePolicyDialog({
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Limits</h4>
+            <p className="text-xs text-muted-foreground">Set ceilings for resource usage; leave empty for unlimited.</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="maxMachines">Max Machines</Label>
+                <p className="text-xs text-muted-foreground">Maximum machines that can be activated under this policy.</p>
                 <Input
                   id="maxMachines"
                   type="number"
@@ -541,6 +556,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxProcesses">Max Processes</Label>
+                <p className="text-xs text-muted-foreground">Limit concurrent processes per license.</p>
                 <Input
                   id="maxProcesses"
                   type="number"
@@ -553,6 +569,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxCores">Max Cores</Label>
+                <p className="text-xs text-muted-foreground">Cap CPU cores a license may run on.</p>
                 <Input
                   id="maxCores"
                   type="number"
@@ -563,6 +580,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxUses">Max Uses</Label>
+                <p className="text-xs text-muted-foreground">Total times the license can be validated.</p>
                 <Input
                   id="maxUses"
                   type="number"
@@ -576,9 +594,11 @@ export function CreatePolicyDialog({
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium">Advanced Settings</h4>
+            <p className="text-xs text-muted-foreground">Fine-tune expiration, authentication, matching, leasing, overage, and transfer rules.</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="expirationStrategy">Expiration Strategy</Label>
+                <p className="text-xs text-muted-foreground">What happens when a license expires.</p>
                 <Select
                   value={formData.expirationStrategy}
                   onValueChange={(value: PolicyFormState['expirationStrategy']) =>
@@ -597,6 +617,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="authenticationStrategy">Authentication Strategy</Label>
+                <p className="text-xs text-muted-foreground">How clients authenticate (token, license key, mixed, or none).</p>
                 <Select
                   value={formData.authenticationStrategy}
                   onValueChange={(value: PolicyFormState['authenticationStrategy']) =>
@@ -616,6 +637,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="machineUniquenessStrategy">Machine Uniqueness</Label>
+                <p className="text-xs text-muted-foreground">Determines scope for unique machine IDs.</p>
                 <Select
                   value={formData.machineUniquenessStrategy}
                   onValueChange={(value: PolicyFormState['machineUniquenessStrategy']) =>
@@ -635,6 +657,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="machineMatchingStrategy">Machine Matching</Label>
+                <p className="text-xs text-muted-foreground">How strictly machine fingerprints must match.</p>
                 <Select
                   value={formData.machineMatchingStrategy}
                   onValueChange={(value: PolicyFormState['machineMatchingStrategy']) =>
@@ -654,6 +677,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="machineLeasingStrategy">Machine Leasing</Label>
+                <p className="text-xs text-muted-foreground">Who owns the lease for machine activations.</p>
                 <Select
                   value={formData.machineLeasingStrategy}
                   onValueChange={(value: PolicyFormState['machineLeasingStrategy']) =>
@@ -672,6 +696,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="processLeasingStrategy">Process Leasing</Label>
+                <p className="text-xs text-muted-foreground">Controls process-level leases (per machine/license/user).</p>
                 <Select
                   value={formData.processLeasingStrategy}
                   onValueChange={(value: PolicyFormState['processLeasingStrategy']) =>
@@ -691,6 +716,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="overageStrategy">Overage Strategy</Label>
+                <p className="text-xs text-muted-foreground">Allowance for temporary over-usage beyond limits.</p>
                 <Select
                   value={formData.overageStrategy}
                   onValueChange={(value: PolicyFormState['overageStrategy']) =>
@@ -711,6 +737,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="transferStrategy">Transfer Strategy</Label>
+                <p className="text-xs text-muted-foreground">Whether expiry is reset or preserved when transferring licenses.</p>
                 <Select
                   value={formData.transferStrategy}
                   onValueChange={(value: PolicyFormState['transferStrategy']) =>
@@ -728,6 +755,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="expirationBasis">Expiration Basis</Label>
+                <p className="text-xs text-muted-foreground">Anchor point for calculating expiry (creation, first use, etc.).</p>
                 <Select
                   value={formData.expirationBasis}
                   onValueChange={(value: PolicyFormState['expirationBasis']) =>
@@ -752,6 +780,7 @@ export function CreatePolicyDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="renewalBasis">Renewal Basis</Label>
+                <p className="text-xs text-muted-foreground">Whether renewal extends from expiry or from the renewal date.</p>
                 <Select
                   value={formData.renewalBasis}
                   onValueChange={(value: PolicyFormState['renewalBasis']) =>

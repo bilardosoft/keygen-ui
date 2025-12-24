@@ -168,6 +168,7 @@ export function CreateProductDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name *</Label>
+              <p className="text-xs text-muted-foreground">Display name used throughout dashboards, licenses, and policies.</p>
               <Input
                 id="name"
                 placeholder="My Awesome Product"
@@ -178,6 +179,7 @@ export function CreateProductDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="strategy">Distribution Strategy</Label>
+              <p className="text-xs text-muted-foreground">Choose how access is controlled: licensed, open access, or closed/offline.</p>
               <Select
                 value={formData.distributionStrategy}
                 onValueChange={(value: 'LICENSED' | 'OPEN' | 'CLOSED') => setFormData({ ...formData, distributionStrategy: value })}
@@ -212,6 +214,7 @@ export function CreateProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="url">Product URL</Label>
+            <p className="text-xs text-muted-foreground">Optional link to docs, download page, or marketing site shown to users.</p>
             <Input
               id="url"
               type="url"
@@ -223,6 +226,7 @@ export function CreateProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="platforms">Platforms</Label>
+            <p className="text-xs text-muted-foreground">List supported platforms to help segment policies (e.g., Windows, macOS, Linux).</p>
             <div className="space-y-2">
               <div className="flex gap-2">
                 <Input

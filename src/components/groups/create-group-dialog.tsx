@@ -100,6 +100,7 @@ export function CreateGroupDialog({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Group Name *</Label>
+              <p className="text-xs text-muted-foreground">Friendly name to identify the group across dashboards.</p>
               <Input
                 id="name"
                 value={formData.name}
@@ -112,6 +113,7 @@ export function CreateGroupDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="maxLicenses">Max Licenses</Label>
+              <p className="text-xs text-muted-foreground">Optional limit on how many licenses this group can own.</p>
               <Input
                 id="maxLicenses"
                 type="number"
@@ -125,6 +127,7 @@ export function CreateGroupDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="maxMachines">Max Machines</Label>
+              <p className="text-xs text-muted-foreground">Optional cap on the number of machines across the group.</p>
               <Input
                 id="maxMachines"
                 type="number"
@@ -138,6 +141,7 @@ export function CreateGroupDialog({
 
             <div className="grid gap-2">
               <Label htmlFor="maxUsers">Max Users</Label>
+              <p className="text-xs text-muted-foreground">Optional limit on members assigned to the group.</p>
               <Input
                 id="maxUsers"
                 type="number"

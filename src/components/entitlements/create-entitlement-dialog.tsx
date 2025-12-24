@@ -100,6 +100,7 @@ export function CreateEntitlementDialog({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Entitlement Name *</Label>
+              <p className="text-xs text-muted-foreground">Human-readable feature or permission name shown in dashboards.</p>
               <Input
                 id="name"
                 value={formData.name}
