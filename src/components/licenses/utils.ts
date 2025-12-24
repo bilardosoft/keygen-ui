@@ -3,4 +3,3 @@ export const parseOptionalNumber = (value: string) => {
   const parsed = Number(value)
   return Number.isNaN(parsed) ? undefined : parsed
 }
-
