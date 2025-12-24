@@ -37,7 +37,6 @@ type PolicyFormState = {
   duration: string
   strict: boolean
   floating: boolean
-  concurrent: boolean
   protected: boolean
   requireHeartbeat: boolean
   heartbeatDuration: string
@@ -81,7 +80,6 @@ const defaultFormState: PolicyFormState = {
   duration: '',
   strict: false,
   floating: false,
-  concurrent: false,
   protected: false,
   requireHeartbeat: false,
   heartbeatDuration: '3600',
@@ -128,7 +126,6 @@ const toFormState = (policy?: Policy | null): PolicyFormState => {
     duration: attrs.duration ? attrs.duration.toString() : '',
     strict: !!attrs.strict,
     floating: !!attrs.floating,
-    concurrent: !!attrs.concurrent,
     protected: !!attrs.protected,
     requireHeartbeat: !!attrs.requireHeartbeat,
     heartbeatDuration: attrs.heartbeatDuration
@@ -229,7 +226,6 @@ export function CreatePolicyDialog({
       duration: numberFromInput(formData.duration),
       strict: formData.strict,
       floating: formData.floating,
-      concurrent: formData.concurrent,
       protected: formData.protected,
       maxMachines: numberFromInput(formData.maxMachines),
       maxProcesses: numberFromInput(formData.maxProcesses),
@@ -262,7 +258,6 @@ export function CreatePolicyDialog({
       duration?: number
       strict: boolean
       floating: boolean
-      concurrent: boolean
       protected: boolean
       maxMachines?: number
       maxProcesses?: number
@@ -438,17 +433,6 @@ export function CreatePolicyDialog({
                 />
                 <Label htmlFor="floating">Floating license</Label>
                 <p className="text-xs text-muted-foreground">Allow seats to be leased and returned instead of permanently bound.</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="concurrent"
-                  checked={formData.concurrent}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, concurrent: !!checked })
-                  }
-                />
-                <Label htmlFor="concurrent">Allow concurrent usage</Label>
-                <p className="text-xs text-muted-foreground">Permit the same license key to be used simultaneously up to limits.</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox

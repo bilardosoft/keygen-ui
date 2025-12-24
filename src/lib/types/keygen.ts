@@ -147,7 +147,6 @@ export interface Policy extends KeygenResource {
     duration?: number;
     strict: boolean;
     floating: boolean;
-    concurrent?: boolean;
     requireProductScope: boolean;
     requirePolicyScope: boolean;
     requireMachineScope: boolean;

@@ -35,7 +35,6 @@ export class PolicyResource {
     duration?: number;
     strict?: boolean;
     floating?: boolean;
-    concurrent?: boolean;
     protected?: boolean;
     maxMachines?: number;
     maxProcesses?: number;
@@ -91,7 +90,6 @@ export class PolicyResource {
     duration?: number;
     strict?: boolean;
     floating?: boolean;
-    concurrent?: boolean;
     protected?: boolean;
     maxMachines?: number;
     maxProcesses?: number;
