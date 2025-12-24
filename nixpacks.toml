@@ -5,14 +5,13 @@ nixPkgs = [
 ]
 
 [phases.install]
-cmds = ["pnpm install"]
+cmds = ["pnpm install --frozen-lockfile"]
 
 [phases.build]
 cmds = ["pnpm run build"]
 
 [phases.start]
-cmds = ["pnpm start"]
+cmds = ["pnpm run start"]
 
 [variables]
-# port olarak genellikle 3000 kullanan bir Next.js projesi için:
 PORT = "3000"
