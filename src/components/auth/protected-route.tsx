@@ -5,19 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { Loader2 } from 'lucide-react';
 
+const BYPASS_AUTH_ENABLED = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
 }
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-  if (process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true') {
-    return <>{children}</>;
-  }
   const { user, loading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (BYPASS_AUTH_ENABLED) {
+      return;
+    }
+
     if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
@@ -29,6 +32,10 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
       return;
     }
   }, [loading, isAuthenticated, user, router, requireAdmin]);
+
+  if (BYPASS_AUTH_ENABLED) {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (

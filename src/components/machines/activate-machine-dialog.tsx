@@ -140,6 +140,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
               <Label htmlFor="fingerprint">Machine Fingerprint *</Label>
+              <p className="text-xs text-muted-foreground">Hardware-derived identifier used to tie the device to a license.</p>
               <Input
                 id="fingerprint"
                 placeholder="e.g., 1A2B3C4D5E6F7G8H9I0J"
@@ -153,6 +154,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
             </div>
             <div className="space-y-2 col-span-2">
               <Label htmlFor="license">License *</Label>
+              <p className="text-xs text-muted-foreground">Select an active license to bind this machine activation.</p>
               <Select
                 value={formData.licenseId}
                 onValueChange={(value) => setFormData({ ...formData, licenseId: value })}
@@ -180,6 +182,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Machine Name</Label>
+              <p className="text-xs text-muted-foreground">Optional friendly label for the device.</p>
               <Input
                 id="name"
                 placeholder="e.g., John's Workstation"
@@ -189,6 +192,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
             </div>
             <div className="space-y-2">
               <Label htmlFor="platform">Platform</Label>
+              <p className="text-xs text-muted-foreground">Operating system or runtime the machine is running.</p>
               <Input
                 id="platform"
                 placeholder="e.g., Windows, macOS, Linux"
@@ -201,6 +205,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="hostname">Hostname</Label>
+              <p className="text-xs text-muted-foreground">Optional network hostname for troubleshooting.</p>
               <Input
                 id="hostname"
                 placeholder="e.g., DESKTOP-ABC123"
@@ -210,6 +215,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
             </div>
             <div className="space-y-2">
               <Label htmlFor="cores">CPU Cores</Label>
+              <p className="text-xs text-muted-foreground">Number of CPU cores to enforce core-based limits.</p>
               <Input
                 id="cores"
                 type="number"
@@ -222,6 +228,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
 
           <div className="space-y-2">
             <Label htmlFor="ip">IP Address</Label>
+            <p className="text-xs text-muted-foreground">Optional last known IP address for audit trails.</p>
             <Input
               id="ip"
               placeholder="e.g., 192.168.1.100"

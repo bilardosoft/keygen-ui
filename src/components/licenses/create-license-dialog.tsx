@@ -239,6 +239,7 @@ export function CreateLicenseDialog({
                     <Label htmlFor="name">Name</Label>
                     <span className="text-xs text-muted-foreground">Optional</span>
                   </div>
+                  <p className="text-xs text-muted-foreground">Friendly label to recognize this license.</p>
                   <Input
                     id="name"
                     placeholder="Name"
@@ -280,6 +281,7 @@ export function CreateLicenseDialog({
                       <TooltipContent>Leave blank for no expiry</TooltipContent>
                     </Tooltip>
                   </div>
+                  <p className="text-xs text-muted-foreground">Set a calendar date when this license should stop working.</p>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -320,6 +322,7 @@ export function CreateLicenseDialog({
                       </Tooltip>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground ml-6">Prevents modification of license attributes after creation.</p>
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <div className="flex items-center gap-1">
@@ -328,9 +331,10 @@ export function CreateLicenseDialog({
                       <TooltipTrigger asChild>
                         <HelpCircle className="size-3.5 text-muted-foreground" />
                       </TooltipTrigger>
-                      <TooltipContent>Comma-separated (e.g., *, machines:read)</TooltipContent>
-                    </Tooltip>
+                    <TooltipContent>Comma-separated (e.g., *, machines:read)</TooltipContent>
+                  </Tooltip>
                   </div>
+                  <p className="text-xs text-muted-foreground">Comma-separated permissions applied to this license.</p>
                   <Input
                     id="permissions"
                     placeholder="Enter permissions…"
@@ -344,6 +348,7 @@ export function CreateLicenseDialog({
             {/* Metadata */}
             <div className="space-y-3">
               <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Metadata</div>
+              <p className="text-xs text-muted-foreground">Add custom key/value pairs (e.g., plan, region, contract IDs).</p>
               <div className="space-y-2">
                 {metadata.length === 0 && (
                   <button
@@ -427,6 +432,7 @@ export function CreateLicenseDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">Required: determines rules, limits, and heartbeat behavior.</p>
                 </div>
 
                 <div className="space-y-2">
@@ -455,6 +461,7 @@ export function CreateLicenseDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">Optional: associate the license with a group for quota and reporting.</p>
                 </div>
 
                 <div className="space-y-2">
@@ -485,6 +492,7 @@ export function CreateLicenseDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">Optional: designate an owner to simplify user lookups.</p>
                 </div>
 
                 {/* Users multi-select */}

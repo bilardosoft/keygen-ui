@@ -144,14 +144,17 @@ export function CreateWebhookDialog({
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="enabled"
-                    checked={formData.enabled}
-                    onCheckedChange={(enabled) => setFormData(prev => ({ ...prev, enabled }))}
-                    disabled={loading}
-                  />
-                  <Label htmlFor="enabled">Enable webhook immediately</Label>
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="enabled"
+                      checked={formData.enabled}
+                      onCheckedChange={(enabled) => setFormData(prev => ({ ...prev, enabled }))}
+                      disabled={loading}
+                    />
+                    <Label htmlFor="enabled">Enable webhook immediately</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Turn on delivery right after creation; disable to configure later.</p>
                 </div>
               </CardContent>
             </Card>

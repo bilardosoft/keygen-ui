@@ -136,6 +136,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>
+              <p className="text-xs text-muted-foreground">Primary login and contact address for the user.</p>
               <Input
                 id="email"
                 type="email"
@@ -147,6 +148,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
+              <p className="text-xs text-muted-foreground">Sets permissions such as admin, developer, or read-only access.</p>
               <Select
                 value={formData.role}
                 onValueChange={(value: typeof formData.role) => setFormData({ ...formData, role: value })}
@@ -200,6 +202,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
+              <p className="text-xs text-muted-foreground">Optional given name for receipts and notifications.</p>
               <Input
                 id="firstName"
                 placeholder="John"
@@ -209,6 +212,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
+              <p className="text-xs text-muted-foreground">Optional surname for user records.</p>
               <Input
                 id="lastName"
                 placeholder="Doe"
@@ -221,6 +225,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>
+              <p className="text-xs text-muted-foreground">Initial password; user can change it after signing in.</p>
               <Input
                 id="password"
                 type="password"
@@ -232,6 +237,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <p className="text-xs text-muted-foreground">Re-enter to ensure the password is correct.</p>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -245,6 +251,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="metadata">Metadata (JSON)</Label>
+            <p className="text-xs text-muted-foreground">Optional JSON for CRM IDs, plan info, or internal tags.</p>
             <Textarea
               id="metadata"
               placeholder='{&quot;department&quot;: &quot;Engineering&quot;, &quot;location&quot;: &quot;Remote&quot;}'

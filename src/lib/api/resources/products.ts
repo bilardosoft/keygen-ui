@@ -1,6 +1,18 @@
 import { KeygenClient } from '../client';
 import { Product, KeygenResponse, ListOptions, KeygenListResponse } from '../../types/keygen';
 
+/**
+ * Shape of the token response returned by the Keygen API
+ * when generating a product token.
+ */
+interface ProductTokenResponse {
+  data?: {
+    attributes?: {
+      token?: string;
+    };
+  };
+}
+
 export class ProductResource {
   constructor(private client: KeygenClient) {}
 
@@ -86,7 +98,7 @@ export class ProductResource {
       method: 'POST',
     });
 
-    const tokenData = (response as any)?.data?.attributes?.token;
+    const tokenData = (response as ProductTokenResponse)?.data?.attributes?.token;
     return tokenData;
   }
 }
