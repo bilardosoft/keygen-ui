@@ -1,3 +1,5 @@
+"use client"
+
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { SettingsOverview } from "@/components/settings/settings-overview"
 

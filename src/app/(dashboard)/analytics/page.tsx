@@ -1,3 +1,5 @@
+"use client"
+
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { RequestLogsPanel } from "@/components/analytics/request-logs-panel"
 

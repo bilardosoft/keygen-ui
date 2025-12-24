@@ -60,6 +60,27 @@ export function ProductManagement() {
   const api = getKeygenApi()
 
   const loadProducts = useCallback(async () => {
+    if (process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true') {
+      setProducts([
+        {
+          id: 'prod_demo',
+          type: 'products',
+          attributes: {
+            name: 'Demo Product',
+            code: 'DEMO',
+            url: 'https://example.com',
+            distributionStrategy: 'LICENSED',
+            platforms: ['Windows', 'macOS'],
+            metadata: {},
+            created: new Date().toISOString(),
+            updated: new Date().toISOString(),
+          },
+        } as Product,
+      ])
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       const response = await api.products.list({ limit: 50 })
@@ -255,6 +276,9 @@ export function ProductManagement() {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="font-medium">{product.attributes.name}</div>
+                      <div className="text-xs text-muted-foreground font-mono">
+                        {product.id}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {product.attributes.code ? (
