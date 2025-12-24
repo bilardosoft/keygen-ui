@@ -37,12 +37,20 @@ export class PolicyResource {
     floating?: boolean;
     concurrent?: boolean;
     protected?: boolean;
+    maxMachines?: number;
+    maxProcesses?: number;
+    maxCores?: number;
+    maxUses?: number;
     requireHeartbeat?: boolean;
     heartbeatDuration?: number;
     heartbeatCullStrategy?: 'DEACTIVATE_DEAD' | 'KEEP_DEAD';
     heartbeatResurrectionStrategy?: 'NO_REVIVE' | 'ALWAYS_REVIVE';
     heartbeatBasis?: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION';
-    machineUniquenessStrategy?: 'UNIQUE_PER_LICENSE' | 'UNIQUE_PER_ACCOUNT';
+    machineUniquenessStrategy?:
+      | 'UNIQUE_PER_LICENSE'
+      | 'UNIQUE_PER_ACCOUNT'
+      | 'UNIQUE_PER_PRODUCT'
+      | 'UNIQUE_PER_POLICY';
     machineMatchingStrategy?: 'MATCH_ANY' | 'MATCH_TWO' | 'MATCH_MOST' | 'MATCH_ALL';
     expirationStrategy?: 'RESTRICT_ACCESS' | 'REVOKE_ACCESS' | 'MAINTAIN_ACCESS';
     expirationBasis?: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION' | 'FROM_FIRST_ACTIVATION' | 'FROM_FIRST_DOWNLOAD' | 'FROM_FIRST_USE';
@@ -85,12 +93,20 @@ export class PolicyResource {
     floating?: boolean;
     concurrent?: boolean;
     protected?: boolean;
+    maxMachines?: number;
+    maxProcesses?: number;
+    maxCores?: number;
+    maxUses?: number;
     requireHeartbeat?: boolean;
     heartbeatDuration?: number;
     heartbeatCullStrategy?: 'DEACTIVATE_DEAD' | 'KEEP_DEAD';
     heartbeatResurrectionStrategy?: 'NO_REVIVE' | 'ALWAYS_REVIVE';
     heartbeatBasis?: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION';
-    machineUniquenessStrategy?: 'UNIQUE_PER_LICENSE' | 'UNIQUE_PER_ACCOUNT';
+    machineUniquenessStrategy?:
+      | 'UNIQUE_PER_LICENSE'
+      | 'UNIQUE_PER_ACCOUNT'
+      | 'UNIQUE_PER_PRODUCT'
+      | 'UNIQUE_PER_POLICY';
     machineMatchingStrategy?: 'MATCH_ANY' | 'MATCH_TWO' | 'MATCH_MOST' | 'MATCH_ALL';
     expirationStrategy?: 'RESTRICT_ACCESS' | 'REVOKE_ACCESS' | 'MAINTAIN_ACCESS';
     expirationBasis?: 'FROM_CREATION' | 'FROM_FIRST_VALIDATION' | 'FROM_FIRST_ACTIVATION' | 'FROM_FIRST_DOWNLOAD' | 'FROM_FIRST_USE';

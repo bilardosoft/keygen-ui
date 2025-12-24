@@ -1,7 +1,7 @@
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
 import { SectionCards } from "@/components/section-cards"
+import { RecentRequests } from "@/components/dashboard/recent-requests"
 
 export default function DashboardPage() {
   return (
@@ -10,7 +10,9 @@ export default function DashboardPage() {
       <div className="px-4 lg:px-6">
         <ChartAreaInteractive />
       </div>
-      <DataTable data={[]} />
+      <div className="px-4 pb-8 lg:px-6">
+        <RecentRequests />
+      </div>
     </ProtectedRoute>
   )
 }

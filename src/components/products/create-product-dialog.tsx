@@ -29,10 +29,20 @@ import { handleFormError } from '@/lib/utils/error-handling'
 
 interface CreateProductDialogProps {
   onProductCreated?: () => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  hideTrigger?: boolean
+  trigger?: React.ReactNode
 }
 
-export function CreateProductDialog({ onProductCreated }: CreateProductDialogProps) {
-  const [open, setOpen] = useState(false)
+export function CreateProductDialog({
+  onProductCreated,
+  open,
+  onOpenChange,
+  hideTrigger,
+  trigger,
+}: CreateProductDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [platforms, setPlatforms] = useState<string[]>([])
   const [platformInput, setPlatformInput] = useState('')
@@ -44,6 +54,17 @@ export function CreateProductDialog({ onProductCreated }: CreateProductDialogPro
   })
 
   const api = getKeygenApi()
+  const dialogOpen = open ?? internalOpen
+
+  const handleOpenChange = (next: boolean) => {
+    onOpenChange?.(next)
+    if (open === undefined) {
+      setInternalOpen(next)
+    }
+    if (!next) {
+      resetForm()
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,7 +96,7 @@ export function CreateProductDialog({ onProductCreated }: CreateProductDialogPro
       })
 
       toast.success('Product created successfully')
-      setOpen(false)
+      handleOpenChange(false)
       resetForm()
       onProductCreated?.()
     } catch (error: unknown) {
@@ -125,13 +146,17 @@ export function CreateProductDialog({ onProductCreated }: CreateProductDialogPro
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Product
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Product
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Create New Product</DialogTitle>
@@ -236,7 +261,7 @@ export function CreateProductDialog({ onProductCreated }: CreateProductDialogPro
               id="metadata"
               placeholder='{&quot;version&quot;: &quot;1.0.0&quot;, &quot;description&quot;: &quot;Product description&quot;}'
               value={formData.metadata}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, metadata: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, metadata: e.target.value })}
               rows={3}
             />
             <p className="text-xs text-muted-foreground">
@@ -248,10 +273,7 @@ export function CreateProductDialog({ onProductCreated }: CreateProductDialogPro
             <Button 
               type="button" 
               variant="outline" 
-              onClick={() => {
-                setOpen(false)
-                resetForm()
-              }}
+              onClick={() => handleOpenChange(false)}
             >
               Cancel
             </Button>

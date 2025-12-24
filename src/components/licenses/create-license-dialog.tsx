@@ -34,10 +34,20 @@ import { toast } from 'sonner'
 
 interface CreateLicenseDialogProps {
   onLicenseCreated?: () => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  hideTrigger?: boolean
+  trigger?: React.ReactNode
 }
 
-export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogProps) {
-  const [open, setOpen] = useState(false)
+export function CreateLicenseDialog({
+  onLicenseCreated,
+  open,
+  onOpenChange,
+  hideTrigger,
+  trigger,
+}: CreateLicenseDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [policies, setPolicies] = useState<Policy[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -62,6 +72,35 @@ export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogPro
   const [entitlementSearch, setEntitlementSearch] = useState('')
 
   const api = getKeygenApi()
+  const dialogOpen = open ?? internalOpen
+
+  const resetFormState = () => {
+    setFormData({
+      name: '',
+      policyId: '',
+      userId: '',
+      groupId: '',
+      key: '',
+      protected: true,
+      permissions: '',
+      expiry: undefined,
+    })
+    setMetadata([])
+    setSelectedUsers([])
+    setSelectedEntitlements([])
+    setUserSearch('')
+    setEntitlementSearch('')
+  }
+
+  const handleOpenChange = (next: boolean) => {
+    onOpenChange?.(next)
+    if (open === undefined) {
+      setInternalOpen(next)
+    }
+    if (!next) {
+      resetFormState()
+    }
+  }
 
   const loadInitialData = useCallback(async () => {
     try {
@@ -84,10 +123,10 @@ export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogPro
   }, [api.policies, api.users, api.groups, api.entitlements])
 
   useEffect(() => {
-    if (open) {
+    if (dialogOpen) {
       loadInitialData()
     }
-  }, [open, loadInitialData])
+  }, [dialogOpen, loadInitialData])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,7 +174,7 @@ export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogPro
       }
 
       toast.success('License created successfully')
-      setOpen(false)
+      handleOpenChange(false)
       setFormData({
         name: '',
         policyId: '',
@@ -167,13 +206,17 @@ export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogPro
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create License
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create License
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>New License</DialogTitle>
@@ -549,7 +592,7 @@ export function CreateLicenseDialog({ onLicenseCreated }: CreateLicenseDialogPro
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>

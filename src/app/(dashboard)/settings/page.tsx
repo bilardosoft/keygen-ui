@@ -1,4 +1,5 @@
 import { ProtectedRoute } from "@/components/auth/protected-route"
+import { SettingsOverview } from "@/components/settings/settings-overview"
 
 export default function SettingsPage() {
   return (
@@ -10,12 +11,7 @@ export default function SettingsPage() {
             Manage your account settings, API keys, and Keygen configuration.
           </p>
         </div>
-        <div className="rounded-lg border bg-card p-8 text-center">
-          <h3 className="text-lg font-semibold mb-2">Account Settings</h3>
-          <p className="text-muted-foreground">
-            Settings management features are coming soon. Configure account preferences, API tokens, and webhooks.
-          </p>
-        </div>
+        <SettingsOverview />
       </div>
     </ProtectedRoute>
   )
