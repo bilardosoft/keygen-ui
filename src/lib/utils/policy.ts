@@ -25,10 +25,18 @@ export const normalizePolicyAttributes = (attrs: PolicyAttributes): PolicyAttrib
 
   return {
     ...attrs,
-    maxMachines: pickAttribute<number | undefined>(record, 'maxMachines', 'max_machines'),
-    maxProcesses: pickAttribute<number | undefined>(record, 'maxProcesses', 'max_processes'),
-    maxCores: pickAttribute<number | undefined>(record, 'maxCores', 'max_cores'),
-    maxUses: pickAttribute<number | undefined>(record, 'maxUses', 'max_uses'),
+    maxMachines:
+      pickAttribute<number | undefined>(record, 'maxMachines', 'max_machines') ??
+      attrs.maxMachines,
+    maxProcesses:
+      pickAttribute<number | undefined>(record, 'maxProcesses', 'max_processes') ??
+      attrs.maxProcesses,
+    maxCores:
+      pickAttribute<number | undefined>(record, 'maxCores', 'max_cores') ??
+      attrs.maxCores,
+    maxUses:
+      pickAttribute<number | undefined>(record, 'maxUses', 'max_uses') ??
+      attrs.maxUses,
     requireHeartbeat:
       pickAttribute<boolean | undefined>(record, 'requireHeartbeat', 'require_heartbeat') ??
       attrs.requireHeartbeat,

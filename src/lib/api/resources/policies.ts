@@ -62,38 +62,35 @@ const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
     ...rest
   } = attributes;
 
-  return {
-    ...rest,
-    ...(maxMachines !== undefined ? { max_machines: maxMachines } : {}),
-    ...(maxProcesses !== undefined ? { max_processes: maxProcesses } : {}),
-    ...(maxCores !== undefined ? { max_cores: maxCores } : {}),
-    ...(maxUses !== undefined ? { max_uses: maxUses } : {}),
-    ...(requireHeartbeat !== undefined ? { require_heartbeat: requireHeartbeat } : {}),
-    ...(heartbeatDuration !== undefined ? { heartbeat_duration: heartbeatDuration } : {}),
-    ...(heartbeatCullStrategy !== undefined ? { heartbeat_cull_strategy: heartbeatCullStrategy } : {}),
-    ...(heartbeatResurrectionStrategy !== undefined
-      ? { heartbeat_resurrection_strategy: heartbeatResurrectionStrategy }
-      : {}),
-    ...(heartbeatBasis !== undefined ? { heartbeat_basis: heartbeatBasis } : {}),
-    ...(machineUniquenessStrategy !== undefined
-      ? { machine_uniqueness_strategy: machineUniquenessStrategy }
-      : {}),
-    ...(machineMatchingStrategy !== undefined
-      ? { machine_matching_strategy: machineMatchingStrategy }
-      : {}),
-    ...(expirationStrategy !== undefined ? { expiration_strategy: expirationStrategy } : {}),
-    ...(expirationBasis !== undefined ? { expiration_basis: expirationBasis } : {}),
-    ...(renewalBasis !== undefined ? { renewal_basis: renewalBasis } : {}),
-    ...(transferStrategy !== undefined ? { transfer_strategy: transferStrategy } : {}),
-    ...(authenticationStrategy !== undefined ? { authentication_strategy: authenticationStrategy } : {}),
-    ...(machineLeasingStrategy !== undefined
-      ? { machine_leasing_strategy: machineLeasingStrategy }
-      : {}),
-    ...(processLeasingStrategy !== undefined
-      ? { process_leasing_strategy: processLeasingStrategy }
-      : {}),
-    ...(overageStrategy !== undefined ? { overage_strategy: overageStrategy } : {}),
+  const serialized: Record<string, unknown> = { ...rest };
+
+  const addIfDefined = (key: string, value: unknown) => {
+    if (value !== undefined) {
+      serialized[key] = value;
+    }
   };
+
+  addIfDefined('max_machines', maxMachines);
+  addIfDefined('max_processes', maxProcesses);
+  addIfDefined('max_cores', maxCores);
+  addIfDefined('max_uses', maxUses);
+  addIfDefined('require_heartbeat', requireHeartbeat);
+  addIfDefined('heartbeat_duration', heartbeatDuration);
+  addIfDefined('heartbeat_cull_strategy', heartbeatCullStrategy);
+  addIfDefined('heartbeat_resurrection_strategy', heartbeatResurrectionStrategy);
+  addIfDefined('heartbeat_basis', heartbeatBasis);
+  addIfDefined('machine_uniqueness_strategy', machineUniquenessStrategy);
+  addIfDefined('machine_matching_strategy', machineMatchingStrategy);
+  addIfDefined('expiration_strategy', expirationStrategy);
+  addIfDefined('expiration_basis', expirationBasis);
+  addIfDefined('renewal_basis', renewalBasis);
+  addIfDefined('transfer_strategy', transferStrategy);
+  addIfDefined('authentication_strategy', authenticationStrategy);
+  addIfDefined('machine_leasing_strategy', machineLeasingStrategy);
+  addIfDefined('process_leasing_strategy', processLeasingStrategy);
+  addIfDefined('overage_strategy', overageStrategy);
+
+  return serialized;
 };
 
 export class PolicyResource {
