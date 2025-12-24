@@ -130,6 +130,33 @@ export interface Machine extends KeygenResource {
   };
 }
 
+export interface Token extends KeygenResource {
+  type: 'tokens';
+  attributes: {
+    kind: string;
+    token?: string;
+    expiry: string | null;
+    permissions?: string[];
+    created: string;
+    updated: string;
+  };
+  relationships?: {
+    account?: KeygenRelationship;
+    bearer?: KeygenRelationship;
+  };
+}
+
+export interface Environment extends KeygenResource {
+  type: 'environments';
+  attributes: {
+    name: string;
+    code: string;
+    isolationStrategy?: string;
+    created: string;
+    updated: string;
+  };
+}
+
 // Product
 export interface Product extends KeygenResource {
   type: 'products';
@@ -221,6 +248,11 @@ export interface Process extends KeygenResource {
   type: 'processes';
   attributes: {
     pid: number;
+    status?: string;
+    interval?: number;
+    lastHeartbeat?: string;
+    nextHeartbeat?: string;
+    metadata?: Record<string, unknown>;
     name?: string;
     platform?: string;
     created: string;
@@ -234,6 +266,7 @@ export interface Component extends KeygenResource {
   attributes: {
     name: string;
     fingerprint: string;
+    metadata?: Record<string, unknown>;
     created: string;
     updated: string;
   };

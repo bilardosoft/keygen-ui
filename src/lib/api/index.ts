@@ -8,6 +8,10 @@ import { GroupResource } from './resources/groups';
 import { EntitlementResource } from './resources/entitlements';
 import { RequestLogResource } from './resources/request-logs';
 import { WebhookResource } from './resources/webhooks';
+import { TokenResource } from './resources/tokens';
+import { ProcessResource } from './resources/processes';
+import { ComponentResource } from './resources/components';
+import { EnvironmentResource } from './resources/environments';
 
 // Additional resource imports (to be created)
 // import { ProcessResource } from './resources/processes';
@@ -23,6 +27,10 @@ export class KeygenApi {
   public entitlements: EntitlementResource;
   public requestLogs: RequestLogResource;
   public webhooks: WebhookResource;
+  public tokens: TokenResource;
+  public processes: ProcessResource;
+  public components: ComponentResource;
+  public environments: EnvironmentResource;
   
   // Additional resources (to be uncommented when created)
   // public processes: ProcessResource;
@@ -38,6 +46,10 @@ export class KeygenApi {
     this.entitlements = new EntitlementResource(client);
     this.requestLogs = new RequestLogResource(client);
     this.webhooks = new WebhookResource(client);
+    this.tokens = new TokenResource(client);
+    this.processes = new ProcessResource(client);
+    this.components = new ComponentResource(client);
+    this.environments = new EnvironmentResource(client);
     
     // Initialize additional resources
     // this.processes = new ProcessResource(client);
@@ -115,3 +127,7 @@ export { GroupResource } from './resources/groups';
 export { EntitlementResource } from './resources/entitlements';
 export { RequestLogResource } from './resources/request-logs';
 export { WebhookResource } from './resources/webhooks';
+export { TokenResource } from './resources/tokens';
+export { ProcessResource } from './resources/processes';
+export { ComponentResource } from './resources/components';
+export { EnvironmentResource } from './resources/environments';
