@@ -315,8 +315,8 @@ export function CreatePolicyDialog({
       setLoading(true)
 
       if (isEdit && policy) {
-        const updatePayload = { ...payload }
-        delete updatePayload.productId
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { productId: _productId, ...updatePayload } = payload
         await api.policies.update(policy.id, updatePayload)
         toast.success('Policy updated successfully')
       } else {
