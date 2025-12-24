@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { IconAlertTriangle, IconRefresh, IconShieldCheck } from "@tabler/icons-react"
+import { ShieldCheck } from "lucide-react"
 
 import { getKeygenApi } from "@/lib/api"
 import { handleLoadError } from "@/lib/utils/error-handling"
@@ -97,6 +98,30 @@ export function SettingsOverview() {
               Re-run checks
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex items-start justify-between">
+          <div>
+            <CardTitle>Signature Verification</CardTitle>
+            <CardDescription>
+              Use <code>KEYGEN_VERIFY_KEY</code> to verify signed artifacts or license files client-side.
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <ShieldCheck className="h-4 w-4" />
+            Recommended
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <p>
+            Configure <code>KEYGEN_VERIFY_KEY</code> (Ed25519 public key) in environments that validate license keys,
+            responses, or update artifacts. This mirrors the example electron activation flow and helps prevent tampering.
+          </p>
+          <p className="text-xs">
+            Store the public key in env (never the private key). Clients should verify signatures before trusting data.
+          </p>
         </CardContent>
       </Card>
     </div>

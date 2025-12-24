@@ -39,6 +39,7 @@ import {
   Unlock,
   Lock,
   Edit,
+  Copy,
   Trash2,
   ExternalLink,
 } from 'lucide-react'
@@ -293,8 +294,20 @@ export function ProductManagement() {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="font-medium">{product.attributes.name}</div>
-                      <div className="text-xs text-muted-foreground font-mono">
+                      <div className="text-xs text-muted-foreground font-mono flex items-center gap-2">
                         {product.id}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={async () => {
+                            await navigator.clipboard.writeText(product.id)
+                            toast.success('Product ID copied')
+                          }}
+                          aria-label="Copy product ID"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </TableCell>
                     <TableCell>
