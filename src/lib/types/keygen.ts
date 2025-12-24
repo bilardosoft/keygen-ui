@@ -186,6 +186,7 @@ export interface Policy extends KeygenResource {
     duration?: number;
     strict: boolean;
     floating: boolean;
+    scheme?: string | null;
     requireProductScope: boolean;
     requirePolicyScope: boolean;
     requireMachineScope: boolean;
@@ -201,6 +202,9 @@ export interface Policy extends KeygenResource {
     maxMachines?: number;
     maxProcesses?: number;
     maxCores?: number;
+    maxMemory?: number;
+    maxDisk?: number;
+    maxUsers?: number;
     maxUses?: number;
     protected: boolean;
     requireHeartbeat: boolean;

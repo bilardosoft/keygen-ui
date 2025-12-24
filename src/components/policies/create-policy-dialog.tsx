@@ -38,7 +38,20 @@ type PolicyFormState = {
   duration: string
   strict: boolean
   floating: boolean
+  scheme: string
   protected: boolean
+  requireProductScope: boolean
+  requirePolicyScope: boolean
+  requireMachineScope: boolean
+  requireFingerprintScope: boolean
+  requireComponentsScope: boolean
+  requireUserScope: boolean
+  requireChecksumScope: boolean
+  requireVersionScope: boolean
+  requireCheckIn: boolean
+  checkInInterval: 'day' | 'week' | 'month' | 'year'
+  checkInIntervalCount: string
+  usePool: boolean
   requireHeartbeat: boolean
   heartbeatDuration: string
   heartbeatCullStrategy: 'DEACTIVATE_DEAD' | 'KEEP_DEAD'
@@ -71,6 +84,9 @@ type PolicyFormState = {
   maxMachines: string
   maxProcesses: string
   maxCores: string
+  maxMemory: string
+  maxDisk: string
+  maxUsers: string
   maxUses: string
   metadata: string
 }
@@ -81,7 +97,20 @@ const defaultFormState: PolicyFormState = {
   duration: '',
   strict: false,
   floating: false,
+  scheme: '',
   protected: false,
+  requireProductScope: false,
+  requirePolicyScope: false,
+  requireMachineScope: false,
+  requireFingerprintScope: false,
+  requireComponentsScope: false,
+  requireUserScope: false,
+  requireChecksumScope: false,
+  requireVersionScope: false,
+  requireCheckIn: false,
+  checkInInterval: 'month',
+  checkInIntervalCount: '1',
+  usePool: false,
   requireHeartbeat: false,
   heartbeatDuration: '3600',
   heartbeatCullStrategy: 'DEACTIVATE_DEAD',
@@ -100,6 +129,9 @@ const defaultFormState: PolicyFormState = {
   maxMachines: '',
   maxProcesses: '',
   maxCores: '',
+  maxMemory: '',
+  maxDisk: '',
+  maxUsers: '',
   maxUses: '',
   metadata: '',
 }
@@ -127,7 +159,20 @@ const toFormState = (policy?: Policy | null): PolicyFormState => {
     duration: attrs.duration ? attrs.duration.toString() : '',
     strict: !!attrs.strict,
     floating: !!attrs.floating,
+    scheme: attrs.scheme ?? '',
     protected: !!attrs.protected,
+    requireProductScope: !!attrs.requireProductScope,
+    requirePolicyScope: !!attrs.requirePolicyScope,
+    requireMachineScope: !!attrs.requireMachineScope,
+    requireFingerprintScope: !!attrs.requireFingerprintScope,
+    requireComponentsScope: !!attrs.requireComponentsScope,
+    requireUserScope: !!attrs.requireUserScope,
+    requireChecksumScope: !!attrs.requireChecksumScope,
+    requireVersionScope: !!attrs.requireVersionScope,
+    requireCheckIn: !!attrs.requireCheckIn,
+    checkInInterval: attrs.checkInInterval ?? 'month',
+    checkInIntervalCount: attrs.checkInIntervalCount?.toString() ?? defaultFormState.checkInIntervalCount,
+    usePool: !!attrs.usePool,
     requireHeartbeat: !!attrs.requireHeartbeat,
     heartbeatDuration: attrs.heartbeatDuration
       ? attrs.heartbeatDuration.toString()
@@ -148,6 +193,9 @@ const toFormState = (policy?: Policy | null): PolicyFormState => {
     maxMachines: attrs.maxMachines?.toString() ?? '',
     maxProcesses: attrs.maxProcesses?.toString() ?? '',
     maxCores: attrs.maxCores?.toString() ?? '',
+    maxMemory: attrs.maxMemory?.toString() ?? '',
+    maxDisk: attrs.maxDisk?.toString() ?? '',
+    maxUsers: attrs.maxUsers?.toString() ?? '',
     maxUses: attrs.maxUses?.toString() ?? '',
     metadata: attrs.metadata ? JSON.stringify(attrs.metadata, null, 2) : '',
   }
@@ -227,10 +275,28 @@ export function CreatePolicyDialog({
       duration: numberFromInput(formData.duration),
       strict: formData.strict,
       floating: formData.floating,
+      scheme: formData.scheme || undefined,
       protected: formData.protected,
+      requireProductScope: formData.requireProductScope,
+      requirePolicyScope: formData.requirePolicyScope,
+      requireMachineScope: formData.requireMachineScope,
+      requireFingerprintScope: formData.requireFingerprintScope,
+      requireComponentsScope: formData.requireComponentsScope,
+      requireUserScope: formData.requireUserScope,
+      requireChecksumScope: formData.requireChecksumScope,
+      requireVersionScope: formData.requireVersionScope,
+      requireCheckIn: formData.requireCheckIn,
+      checkInInterval: formData.requireCheckIn ? formData.checkInInterval : undefined,
+      checkInIntervalCount: formData.requireCheckIn
+        ? numberFromInput(formData.checkInIntervalCount)
+        : undefined,
+      usePool: formData.usePool,
       maxMachines: numberFromInput(formData.maxMachines),
       maxProcesses: numberFromInput(formData.maxProcesses),
       maxCores: numberFromInput(formData.maxCores),
+      maxMemory: numberFromInput(formData.maxMemory),
+      maxDisk: numberFromInput(formData.maxDisk),
+      maxUsers: numberFromInput(formData.maxUsers),
       maxUses: numberFromInput(formData.maxUses),
       requireHeartbeat: formData.requireHeartbeat,
       machineUniquenessStrategy: formData.machineUniquenessStrategy,
@@ -259,10 +325,26 @@ export function CreatePolicyDialog({
       duration?: number
       strict: boolean
       floating: boolean
+      scheme?: string
       protected: boolean
+      requireProductScope: boolean
+      requirePolicyScope: boolean
+      requireMachineScope: boolean
+      requireFingerprintScope: boolean
+      requireComponentsScope: boolean
+      requireUserScope: boolean
+      requireChecksumScope: boolean
+      requireVersionScope: boolean
+      requireCheckIn: boolean
+      checkInInterval?: PolicyFormState['checkInInterval']
+      checkInIntervalCount?: number
+      usePool: boolean
       maxMachines?: number
       maxProcesses?: number
       maxCores?: number
+      maxMemory?: number
+      maxDisk?: number
+      maxUsers?: number
       maxUses?: number
       requireHeartbeat: boolean
       heartbeatDuration?: number
@@ -450,6 +532,114 @@ export function CreatePolicyDialog({
           </div>
 
           <div className="space-y-4">
+            <h4 className="text-sm font-medium">Key Scheme & Pool</h4>
+            <p className="text-xs text-muted-foreground">Configure signing/encryption for keys and whether to draw from a fixed pool.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="scheme">Key Scheme</Label>
+                <Select
+                  value={formData.scheme}
+                  onValueChange={(value) => setFormData({ ...formData, scheme: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="None (no signing/encryption)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="ED25519_SIGN">ED25519_SIGN</SelectItem>
+                    <SelectItem value="ECDSA_P256_SIGN">ECDSA_P256_SIGN</SelectItem>
+                    <SelectItem value="RSA_2048_PKCS1_PSS_SIGN_V2">RSA_2048_PKCS1_PSS_SIGN_V2</SelectItem>
+                    <SelectItem value="RSA_2048_PKCS1_SIGN_V2">RSA_2048_PKCS1_SIGN_V2</SelectItem>
+                    <SelectItem value="RSA_2048_PKCS1_ENCRYPT">RSA_2048_PKCS1_ENCRYPT</SelectItem>
+                    <SelectItem value="RSA_2048_JWT_RS256">RSA_2048_JWT_RS256</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="usePool"
+                  checked={formData.usePool}
+                  onCheckedChange={(checked) => setFormData({ ...formData, usePool: !!checked })}
+                />
+                <Label htmlFor="usePool">Use key pool</Label>
+                <p className="text-xs text-muted-foreground">Pull keys from a predefined pool.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium">Scope & Check-in Requirements</h4>
+            <p className="text-xs text-muted-foreground">Enforce scopes during validation and periodic check-ins.</p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                ['requireProductScope', 'Require product scope'],
+                ['requirePolicyScope', 'Require policy scope'],
+                ['requireMachineScope', 'Require machine scope'],
+                ['requireFingerprintScope', 'Require fingerprint scope'],
+                ['requireComponentsScope', 'Require components scope'],
+                ['requireUserScope', 'Require user scope'],
+                ['requireChecksumScope', 'Require checksum scope'],
+                ['requireVersionScope', 'Require version scope'],
+              ].map(([key, label]) => (
+                <label key={key} className="flex items-center space-x-2 text-sm">
+                  <Checkbox
+                    checked={(formData as any)[key]}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, [key]: !!checked } as PolicyFormState)
+                    }
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="requireCheckIn"
+                  checked={formData.requireCheckIn}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, requireCheckIn: !!checked })
+                  }
+                />
+                <Label htmlFor="requireCheckIn">Require check-in</Label>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="checkInInterval">Check-in interval</Label>
+                <Select
+                  disabled={!formData.requireCheckIn}
+                  value={formData.checkInInterval}
+                  onValueChange={(value: PolicyFormState['checkInInterval']) =>
+                    setFormData({ ...formData, checkInInterval: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Day</SelectItem>
+                    <SelectItem value="week">Week</SelectItem>
+                    <SelectItem value="month">Month</SelectItem>
+                    <SelectItem value="year">Year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="checkInIntervalCount">Interval count</Label>
+                <Input
+                  id="checkInIntervalCount"
+                  type="number"
+                  min={1}
+                  disabled={!formData.requireCheckIn}
+                  value={formData.checkInIntervalCount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, checkInIntervalCount: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             <h4 className="text-sm font-medium">Heartbeat Settings</h4>
             <p className="text-xs text-muted-foreground">Configure periodic check-ins to keep licenses active.</p>
             <div className="space-y-4">
@@ -572,6 +762,39 @@ export function CreatePolicyDialog({
                   placeholder="e.g., 100"
                   value={formData.maxUses}
                   onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxMemory">Max Memory</Label>
+                <p className="text-xs text-muted-foreground">Total memory (bytes) allowed across machines.</p>
+                <Input
+                  id="maxMemory"
+                  type="number"
+                  placeholder="e.g., 17179869184"
+                  value={formData.maxMemory}
+                  onChange={(e) => setFormData({ ...formData, maxMemory: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxDisk">Max Disk</Label>
+                <p className="text-xs text-muted-foreground">Total disk (bytes) allowed across machines.</p>
+                <Input
+                  id="maxDisk"
+                  type="number"
+                  placeholder="e.g., 536870912000"
+                  value={formData.maxDisk}
+                  onChange={(e) => setFormData({ ...formData, maxDisk: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxUsers">Max Users</Label>
+                <p className="text-xs text-muted-foreground">Maximum users that may be attached.</p>
+                <Input
+                  id="maxUsers"
+                  type="number"
+                  placeholder="e.g., 10"
+                  value={formData.maxUsers}
+                  onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
                 />
               </div>
             </div>
