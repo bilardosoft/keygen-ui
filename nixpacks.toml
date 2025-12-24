@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = [
+  "nodejs_20",
+  "pnpm"
+]
+
+[phases.install]
+cmds = ["pnpm install"]
+
+[phases.build]
+cmds = ["pnpm run build"]
+
+[phases.start]
+cmds = ["pnpm start"]
+
+[variables]
+# port olarak genellikle 3000 kullanan bir Next.js projesi için:
+PORT = "3000"
