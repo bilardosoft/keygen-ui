@@ -133,20 +133,16 @@ export function CreateLicenseDialog({
       }
 
       type ResourceResult = PromiseSettledResult<
-        | KeygenListResponse<Policy>
-        | KeygenResponse<User[]>
-        | KeygenResponse<Group[]>
-        | KeygenResponse<Environment[]>
-        | KeygenListResponse<Entitlement>
+        KeygenListResponse<Policy | User | Group | Environment | Entitlement>
       >
 
       const resourceResults: { name: string; result: ResourceResult }[] = [
-        { name: 'policies', result: policiesResult },
-        { name: 'users', result: usersResult },
-        { name: 'groups', result: groupsResult },
-        { name: 'environments', result: environmentsResult },
-        { name: 'entitlements', result: entitlementsResult },
-      ] satisfies { name: string; result: PromiseSettledResult<unknown> }[]
+        { name: 'policies', result: policiesResult as ResourceResult },
+        { name: 'users', result: usersResult as ResourceResult },
+        { name: 'groups', result: groupsResult as ResourceResult },
+        { name: 'environments', result: environmentsResult as ResourceResult },
+        { name: 'entitlements', result: entitlementsResult as ResourceResult },
+      ]
 
       const rejected = resourceResults.filter(
         (entry): entry is { name: string; result: PromiseRejectedResult } => entry.result.status === 'rejected'
