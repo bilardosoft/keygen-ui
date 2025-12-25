@@ -24,9 +24,11 @@ export interface KeygenClientConfig {
 
 export class KeygenClient {
   private config: KeygenClientConfig;
+  private baseApiUrl: string;
 
   constructor(config: KeygenClientConfig) {
     this.config = config;
+    this.baseApiUrl = this.normalizeApiUrl(config.apiUrl);
   }
 
   /**
@@ -189,19 +191,30 @@ export class KeygenClient {
    * Build the full URL for an endpoint
    */
   private buildUrl(endpoint: string): string {
-    const baseUrl = `${this.config.apiUrl}/accounts/${this.config.accountId}`;
-    
+    const baseUrl = `${this.baseApiUrl}/accounts/${this.config.accountId}`;
+
     // Handle both absolute and relative endpoints
     if (endpoint.startsWith('/')) {
       // Absolute endpoint (e.g., '/tokens', '/me')
       if (endpoint.startsWith('/v1') || endpoint === '/me') {
-        return `${this.config.apiUrl}${endpoint}`;
+        return `${this.baseApiUrl}${endpoint.replace(/^\/v1/, '')}`;
       }
       return `${baseUrl}${endpoint}`;
     }
-    
+
     // Relative endpoint
     return `${baseUrl}/${endpoint}`;
+  }
+
+  /**
+   * Ensure API URL consistently includes /v1 and no trailing slash
+   */
+  private normalizeApiUrl(url: string): string {
+    const trimmed = url.replace(/\/+$/, '');
+    if (trimmed.endsWith('/v1')) {
+      return trimmed;
+    }
+    return `${trimmed}/v1`;
   }
 
   /**
