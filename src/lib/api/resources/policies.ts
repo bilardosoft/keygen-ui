@@ -54,12 +54,16 @@ type PolicyCreateData = PolicyAttributesInput & {
   productId: string;
 };
 
+const toCamelCase = (key: string) =>
+  key.replace(/_([a-z])/g, (_, char: string) => char.toUpperCase());
+
 const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
   const serialized: Record<string, unknown> = {};
 
   Object.entries(attributes).forEach(([key, value]) => {
     if (value !== undefined) {
-      serialized[key] = value;
+      const normalizedKey = key.includes('_') ? toCamelCase(key) : key;
+      serialized[normalizedKey] = value;
     }
   });
 
