@@ -55,20 +55,15 @@ type PolicyCreateData = PolicyAttributesInput & {
 };
 
 const toCamelCase = (key: string) =>
-  key.replace(/_([a-z])/g, (_, char: string) => char.toUpperCase());
+  key.replace(/_([a-zA-Z0-9])/g, (_, char: string) => char.toUpperCase());
 
-const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
-  const serialized: Record<string, unknown> = {};
-
-  Object.entries(attributes).forEach(([key, value]) => {
+const serializePolicyAttributes = (attributes: PolicyAttributesInput) =>
+  Object.entries(attributes).reduce<Record<string, unknown>>((serialized, [key, value]) => {
     if (value !== undefined) {
-      const normalizedKey = key.includes('_') ? toCamelCase(key) : key;
-      serialized[normalizedKey] = value;
+      serialized[toCamelCase(key)] = value;
     }
-  });
-
-  return serialized;
-};
+    return serialized;
+  }, {});
 
 export class PolicyResource {
   constructor(private client: KeygenClient) {}
