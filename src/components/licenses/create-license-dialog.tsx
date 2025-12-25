@@ -132,19 +132,23 @@ export function CreateLicenseDialog({
         setEntitlements(entitlementsResult.value.data || [])
       }
 
-      const rejected = ([
+      const resourceResults = [
         { name: 'policies', result: policiesResult },
         { name: 'users', result: usersResult },
         { name: 'groups', result: groupsResult },
         { name: 'environments', result: environmentsResult },
         { name: 'entitlements', result: entitlementsResult },
-      ] satisfies { name: string; result: PromiseSettledResult<unknown> }[]).filter(
+      ] satisfies { name: string; result: PromiseSettledResult<unknown> }[]
+
+      const rejected = resourceResults.filter(
         (entry): entry is { name: string; result: PromiseRejectedResult } => entry.result.status === 'rejected'
       )
 
       if (rejected.length) {
         const firstFailure = rejected[0]
-        console.error('Failed to load license dialog data', rejected)
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to load license dialog data', rejected)
+        }
         handleLoadError(
           firstFailure.result.reason,
           `initial data (${rejected.map(({ name }) => name).join(', ')})`
