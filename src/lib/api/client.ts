@@ -266,12 +266,11 @@ export class KeygenClient {
   buildPaginationParams(options: PaginationOptions = {}) {
     const params: Record<string, unknown> = {};
 
-    if (options.limit) {
-      params.limit = options.limit;
-    }
-
-    if (options.page) {
-      params.page = options.page;
+    if (options.limit || options.page) {
+      params.page = {
+        ...(options.page && { number: options.page }),
+        ...(options.limit && { size: options.limit }),
+      };
     }
 
     return params;
