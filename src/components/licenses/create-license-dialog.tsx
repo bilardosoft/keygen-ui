@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, Plus, HelpCircle, RefreshCcw, X } from 'lucide-react'
 import { getKeygenApi } from '@/lib/api'
-import { Entitlement, Environment, Group, Policy, User } from '@/lib/types/keygen'
+import { Entitlement, Environment, Group, Policy, User, KeygenResponse, KeygenListResponse } from '@/lib/types/keygen'
 import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
 import { toast } from 'sonner'
 import { parseOptionalNumber } from './utils'
@@ -132,7 +132,15 @@ export function CreateLicenseDialog({
         setEntitlements(entitlementsResult.value.data || [])
       }
 
-      const resourceResults = [
+      type ResourceResult = PromiseSettledResult<
+        | KeygenListResponse<Policy>
+        | KeygenResponse<User[]>
+        | KeygenResponse<Group[]>
+        | KeygenResponse<Environment[]>
+        | KeygenListResponse<Entitlement>
+      >
+
+      const resourceResults: { name: string; result: ResourceResult }[] = [
         { name: 'policies', result: policiesResult },
         { name: 'users', result: usersResult },
         { name: 'groups', result: groupsResult },
@@ -146,12 +154,13 @@ export function CreateLicenseDialog({
 
       if (rejected.length) {
         const firstFailure = rejected[0]
+        const failureNames = rejected.map(({ name }) => name).join(', ')
         if (process.env.NODE_ENV !== 'production') {
           console.error('Failed to load license dialog data', rejected)
         }
         handleLoadError(
           firstFailure.result.reason,
-          `initial data (${rejected.map(({ name }) => name).join(', ')})`
+          `initial data (${failureNames}; ${rejected.length} failure${rejected.length > 1 ? 's' : ''})`
         )
       }
     } catch (error: unknown) {
