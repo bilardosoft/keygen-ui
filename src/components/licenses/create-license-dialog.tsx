@@ -132,14 +132,6 @@ export function CreateLicenseDialog({
         setEntitlements(entitlementsResult.value.data || [])
       }
 
-      const failures = [
-        { name: 'policies', result: policiesResult as PromiseSettledResult<unknown> },
-        { name: 'users', result: usersResult as PromiseSettledResult<unknown> },
-        { name: 'groups', result: groupsResult as PromiseSettledResult<unknown> },
-        { name: 'environments', result: environmentsResult as PromiseSettledResult<unknown> },
-        { name: 'entitlements', result: entitlementsResult as PromiseSettledResult<unknown> },
-      ]
-
       const rejected = ([
         { name: 'policies', result: policiesResult },
         { name: 'users', result: usersResult },
