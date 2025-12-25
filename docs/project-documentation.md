@@ -58,8 +58,10 @@ src/
 Environment variables (`.env.local`):
 
 ```
-KEYGEN_API_URL=<https://api.keygen.sh/v1 or your instance>
-KEYGEN_ACCOUNT_ID=<account-id>
+NEXT_PUBLIC_KEYGEN_API_URL=<https://api.keygen.sh/v1 or your instance>
+NEXT_PUBLIC_KEYGEN_ACCOUNT_ID=<account-id>
+KEYGEN_API_URL=<https://api.keygen.sh/v1 or your instance> # fallback for server environments
+KEYGEN_ACCOUNT_ID=<account-id> # fallback for server environments
 KEYGEN_ADMIN_EMAIL=<email>
 KEYGEN_ADMIN_PASSWORD=<password>
 ```

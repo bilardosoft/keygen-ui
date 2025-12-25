@@ -165,8 +165,10 @@ Keygen UI is a comprehensive, enterprise-grade frontend application that provide
    cp .env.example .env.local
    ```
    
-   Update `.env.local` with your Keygen instance details:
+   Update `.env.local` with your Keygen instance details (the `NEXT_PUBLIC_` keys are used client-side; `KEYGEN_` fallbacks are also supported):
    ```env
+   NEXT_PUBLIC_KEYGEN_API_URL=https://api.keygen.sh/v1
+   NEXT_PUBLIC_KEYGEN_ACCOUNT_ID=your-account-id
    KEYGEN_API_URL=https://api.keygen.sh/v1
    KEYGEN_ACCOUNT_ID=your-account-id
    KEYGEN_ADMIN_EMAIL=your-email@example.com
