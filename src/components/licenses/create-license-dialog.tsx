@@ -140,7 +140,13 @@ export function CreateLicenseDialog({
         { name: 'entitlements', result: entitlementsResult as PromiseSettledResult<unknown> },
       ]
 
-      const rejected = failures.filter(
+      const rejected = ([
+        { name: 'policies', result: policiesResult },
+        { name: 'users', result: usersResult },
+        { name: 'groups', result: groupsResult },
+        { name: 'environments', result: environmentsResult },
+        { name: 'entitlements', result: entitlementsResult },
+      ] satisfies { name: string; result: PromiseSettledResult<unknown> }[]).filter(
         (entry): entry is { name: string; result: PromiseRejectedResult } => entry.result.status === 'rejected'
       )
 
