@@ -147,7 +147,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
           Activate Machine
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] max-h-[calc(100vh-3rem)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Activate New Machine</DialogTitle>
           <DialogDescription>
