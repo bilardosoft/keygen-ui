@@ -1,4 +1,4 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   env: {
@@ -7,6 +7,6 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_KEYGEN_ACCOUNT_ID:
       process.env.NEXT_PUBLIC_KEYGEN_ACCOUNT_ID ?? process.env.KEYGEN_ACCOUNT_ID,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
