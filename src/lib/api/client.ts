@@ -9,6 +9,7 @@ import {
   NetworkError,
   ParseError,
   AuthError,
+  ValidationError,
   ERROR_CODES,
   HTTP_STATUS
 } from '@/lib/types/errors';
@@ -21,6 +22,9 @@ export interface KeygenClientConfig {
   accountId: string;
   token?: string;
 }
+
+const DEFAULT_PAGE_NUMBER = 1;
+type PageParams = { number?: number; size?: number };
 
 export class KeygenClient {
   private config: KeygenClientConfig;
@@ -266,14 +270,57 @@ export class KeygenClient {
   buildPaginationParams(options: PaginationOptions = {}) {
     const params: Record<string, unknown> = {};
 
-    if (options.limit || options.page) {
-      params.page = {
-        ...(options.page && { number: options.page }),
-        ...(options.limit && { size: options.limit }),
-      };
+    const pageSize = options.page?.size ?? options.limit;
+    if (pageSize !== undefined) {
+      if (!Number.isInteger(pageSize) || pageSize < 1) {
+        throw this.createValidationError(
+          'Page size must be a positive integer',
+          options.page?.size !== undefined ? 'page.size' : 'limit',
+          pageSize
+        );
+      }
+    }
+
+    let pageNumber: number | undefined;
+
+    if (options.page?.number !== undefined) {
+      if (!Number.isInteger(options.page.number) || options.page.number < 1) {
+        throw this.createValidationError(
+          'Page number must be a positive integer',
+          'page.number',
+          options.page.number
+        );
+      }
+      pageNumber = options.page.number;
+    } else if (pageSize !== undefined) {
+      pageNumber = DEFAULT_PAGE_NUMBER;
+    }
+
+    if (pageSize !== undefined || pageNumber !== undefined) {
+      const pageParams: PageParams = {};
+      if (pageNumber !== undefined) {
+        pageParams.number = pageNumber;
+      }
+      if (pageSize !== undefined) {
+        pageParams.size = pageSize;
+      }
+      params.page = pageParams;
     }
 
     return params;
+  }
+
+  private createValidationError(
+    message: string,
+    field: string,
+    value: unknown
+  ): ValidationError {
+    return {
+      message,
+      code: ERROR_CODES.VALIDATION_ERROR,
+      field,
+      value,
+    };
   }
 }
 
