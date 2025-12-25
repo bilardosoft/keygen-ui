@@ -112,11 +112,10 @@ export function CreateLicenseDialog({
   const loadInitialData = useCallback(async () => {
     try {
       setLoadingData(true)
-      const [policiesResult, usersResult, groupsResult, environmentsResult, entitlementsResult] = await Promise.allSettled([
+      const [policiesResult, usersResult, groupsResult, entitlementsResult] = await Promise.allSettled([
         api.policies.list({ limit: 100 }),
         api.users.list({ limit: 100 }),
         api.groups.list({ limit: 100 }),
-        api.environments.list({ limit: 100 }),
         api.entitlements.list({ limit: 100 }),
       ])
 
@@ -129,18 +128,23 @@ export function CreateLicenseDialog({
       if (groupsResult.status === 'fulfilled') {
         setGroups(groupsResult.value.data || [])
       }
-      if (environmentsResult.status === 'fulfilled') {
-        setEnvironments(environmentsResult.value.data || [])
-      }
       if (entitlementsResult.status === 'fulfilled') {
         setEntitlements(entitlementsResult.value.data || [])
+      }
+
+      // Environments are optional; don't block the dialog if they fail to load
+      try {
+        const envRes = await api.environments.list({ limit: 100 })
+        setEnvironments(envRes.data || [])
+      } catch (envError) {
+        setEnvironments([])
+        handleLoadError(envError, 'environments (optional)')
       }
 
       const resourceResults: { name: string; result: LicenseDialogResourceResult }[] = [
         { name: 'policies', result: policiesResult },
         { name: 'users', result: usersResult },
         { name: 'groups', result: groupsResult },
-        { name: 'environments', result: environmentsResult },
         { name: 'entitlements', result: entitlementsResult },
       ]
 
