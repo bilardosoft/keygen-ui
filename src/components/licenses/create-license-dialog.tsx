@@ -143,9 +143,10 @@ export function CreateLicenseDialog({
       )
 
       if (rejected.length) {
+        const firstFailure = rejected[0]
         console.error('Failed to load license dialog data', rejected)
         handleLoadError(
-          rejected[0].result.reason,
+          firstFailure.result.reason,
           `initial data (${rejected.map(({ name }) => name).join(', ')})`
         )
       }
