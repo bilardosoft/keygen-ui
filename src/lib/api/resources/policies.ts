@@ -57,6 +57,8 @@ type PolicyCreateData = PolicyAttributesInput & {
 const toCamelCase = (key: string) =>
   key.replace(/_([a-zA-Z0-9])/g, (_, char: string) => char.toUpperCase());
 
+// Keygen API expects camelCase attribute keys; normalize any legacy snake_case inputs
+// while omitting undefined values to avoid unpermitted parameter errors.
 const serializePolicyAttributes = (attributes: PolicyAttributesInput) =>
   Object.entries(attributes).reduce<Record<string, unknown>>((serialized, [key, value]) => {
     if (value !== undefined) {
