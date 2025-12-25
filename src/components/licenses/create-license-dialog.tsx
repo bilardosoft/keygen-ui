@@ -108,18 +108,37 @@ export function CreateLicenseDialog({
   const loadInitialData = useCallback(async () => {
     try {
       setLoadingData(true)
-      const [policiesResponse, usersResponse, groupsResponse, environmentsResponse, entitlementsResponse] = await Promise.all([
+      const [policiesResult, usersResult, groupsResult, environmentsResult, entitlementsResult] = await Promise.allSettled([
         api.policies.list({ limit: 100 }),
         api.users.list({ limit: 100 }),
         api.groups.list({ limit: 100 }),
         api.environments.list({ limit: 100 }),
         api.entitlements.list({ limit: 100 }),
       ])
-      setPolicies(policiesResponse.data || [])
-      setUsers(usersResponse.data || [])
-      setGroups(groupsResponse.data || [])
-      setEnvironments(environmentsResponse.data || [])
-      setEntitlements(entitlementsResponse.data || [])
+
+      if (policiesResult.status === 'fulfilled') {
+        setPolicies(policiesResult.value.data || [])
+      }
+      if (usersResult.status === 'fulfilled') {
+        setUsers(usersResult.value.data || [])
+      }
+      if (groupsResult.status === 'fulfilled') {
+        setGroups(groupsResult.value.data || [])
+      }
+      if (environmentsResult.status === 'fulfilled') {
+        setEnvironments(environmentsResult.value.data || [])
+      }
+      if (entitlementsResult.status === 'fulfilled') {
+        setEntitlements(entitlementsResult.value.data || [])
+      }
+
+      const firstError = [policiesResult, usersResult, groupsResult, environmentsResult, entitlementsResult].find(
+        (result): result is PromiseRejectedResult => result.status === 'rejected'
+      )
+
+      if (firstError) {
+        handleLoadError(firstError.reason, 'initial data')
+      }
     } catch (error: unknown) {
       handleLoadError(error, 'initial data')
     } finally {
@@ -219,7 +238,7 @@ export function CreateLicenseDialog({
           )}
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[720px]">
+      <DialogContent className="sm:max-w-[720px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New License</DialogTitle>
           <DialogDescription>
