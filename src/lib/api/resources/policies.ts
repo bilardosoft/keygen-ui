@@ -55,88 +55,13 @@ type PolicyCreateData = PolicyAttributesInput & {
 };
 
 const serializePolicyAttributes = (attributes: PolicyAttributesInput) => {
-  const {
-    maxMachines,
-    maxProcesses,
-    maxCores,
-    maxMemory,
-    maxDisk,
-    maxUsers,
-    maxUses,
-    scheme,
-    requireProductScope,
-    requirePolicyScope,
-    requireMachineScope,
-    requireFingerprintScope,
-    requireComponentsScope,
-    requireUserScope,
-    requireChecksumScope,
-    requireVersionScope,
-    requireCheckIn,
-    checkInInterval,
-    checkInIntervalCount,
-    usePool,
-    requireHeartbeat,
-    heartbeatDuration,
-    heartbeatCullStrategy,
-    heartbeatResurrectionStrategy,
-    heartbeatBasis,
-    machineUniquenessStrategy,
-    machineMatchingStrategy,
-    expirationStrategy,
-    expirationBasis,
-    renewalBasis,
-    transferStrategy,
-    authenticationStrategy,
-    machineLeasingStrategy,
-    processLeasingStrategy,
-    overageStrategy,
-    ...rest
-  } = attributes;
+  const serialized: Record<string, unknown> = {};
 
-  const serialized: Record<string, unknown> = { ...rest };
-
-  const addIfDefined = (key: string, value: unknown) => {
+  Object.entries(attributes).forEach(([key, value]) => {
     if (value !== undefined) {
       serialized[key] = value;
     }
-  };
-
-  addIfDefined('max_machines', maxMachines);
-  addIfDefined('max_processes', maxProcesses);
-  addIfDefined('max_cores', maxCores);
-  addIfDefined('max_memory', maxMemory);
-  addIfDefined('max_disk', maxDisk);
-  addIfDefined('max_users', maxUsers);
-  addIfDefined('max_uses', maxUses);
-  addIfDefined('scheme', scheme);
-  addIfDefined('require_product_scope', requireProductScope);
-  addIfDefined('require_policy_scope', requirePolicyScope);
-  addIfDefined('require_machine_scope', requireMachineScope);
-  addIfDefined('require_fingerprint_scope', requireFingerprintScope);
-  addIfDefined('require_components_scope', requireComponentsScope);
-  addIfDefined('require_user_scope', requireUserScope);
-  addIfDefined('require_checksum_scope', requireChecksumScope);
-  addIfDefined('require_version_scope', requireVersionScope);
-  addIfDefined('require_check_in', requireCheckIn);
-  addIfDefined('check_in_interval', checkInInterval);
-  addIfDefined('check_in_interval_count', checkInIntervalCount);
-  addIfDefined('use_pool', usePool);
-  addIfDefined('require_heartbeat', requireHeartbeat);
-  addIfDefined('heartbeat_duration', heartbeatDuration);
-  addIfDefined('heartbeat_cull_strategy', heartbeatCullStrategy);
-  addIfDefined('heartbeat_resurrection_strategy', heartbeatResurrectionStrategy);
-  addIfDefined('heartbeat_basis', heartbeatBasis);
-  addIfDefined('machine_uniqueness_strategy', machineUniquenessStrategy);
-  addIfDefined('machine_matching_strategy', machineMatchingStrategy);
-  addIfDefined('expiration_strategy', expirationStrategy);
-  addIfDefined('expiration_basis', expirationBasis);
-  addIfDefined('renewal_basis', renewalBasis);
-  addIfDefined('transfer_strategy', transferStrategy);
-  addIfDefined('authentication_strategy', authenticationStrategy);
-  addIfDefined('machine_leasing_strategy', machineLeasingStrategy);
-  addIfDefined('process_leasing_strategy', processLeasingStrategy);
-  addIfDefined('overage_strategy', overageStrategy);
+  });
 
   return serialized;
 };
