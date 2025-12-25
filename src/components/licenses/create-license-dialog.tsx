@@ -33,6 +33,10 @@ import { handleFormError, handleLoadError } from '@/lib/utils/error-handling'
 import { toast } from 'sonner'
 import { parseOptionalNumber } from './utils'
 
+type LicenseDialogResourceResult = PromiseSettledResult<
+  KeygenListResponse<Policy | User | Group | Environment | Entitlement>
+>
+
 interface CreateLicenseDialogProps {
   onLicenseCreated?: () => void
   open?: boolean
@@ -132,16 +136,12 @@ export function CreateLicenseDialog({
         setEntitlements(entitlementsResult.value.data || [])
       }
 
-      type ResourceResult = PromiseSettledResult<
-        KeygenListResponse<Policy | User | Group | Environment | Entitlement>
-      >
-
-      const resourceResults: { name: string; result: ResourceResult }[] = [
-        { name: 'policies', result: policiesResult as ResourceResult },
-        { name: 'users', result: usersResult as ResourceResult },
-        { name: 'groups', result: groupsResult as ResourceResult },
-        { name: 'environments', result: environmentsResult as ResourceResult },
-        { name: 'entitlements', result: entitlementsResult as ResourceResult },
+      const resourceResults: { name: string; result: LicenseDialogResourceResult }[] = [
+        { name: 'policies', result: policiesResult },
+        { name: 'users', result: usersResult },
+        { name: 'groups', result: groupsResult },
+        { name: 'environments', result: environmentsResult },
+        { name: 'entitlements', result: entitlementsResult },
       ]
 
       const rejected = resourceResults.filter(
