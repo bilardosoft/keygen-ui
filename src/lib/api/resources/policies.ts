@@ -54,15 +54,22 @@ type PolicyCreateData = PolicyAttributesInput & {
   productId: string;
 };
 
-const toCamelCase = (key: string) =>
-  key.replace(/_([a-zA-Z0-9])/g, (_, char: string) => char.toUpperCase());
+const toSnakeCase = (key: string) =>
+  key
+    // Handle camelCase and digit-to-capital transitions
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    // Handle consecutive capitals followed by lowercase characters (e.g., XMLHttp)
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    // Collapse multiple underscores that may have been introduced
+    .replace(/_+/g, '_')
+    .toLowerCase();
 
-// Keygen API expects camelCase attribute keys; normalize any legacy snake_case inputs
+// Keygen API expects snake_case attribute keys; normalize attribute keys to snake_case
 // while omitting undefined values to avoid unpermitted parameter errors.
 const serializePolicyAttributes = (attributes: PolicyAttributesInput) =>
   Object.entries(attributes).reduce<Record<string, unknown>>((serialized, [key, value]) => {
     if (value !== undefined) {
-      serialized[toCamelCase(key)] = value;
+      serialized[toSnakeCase(key)] = value;
     }
     return serialized;
   }, {});

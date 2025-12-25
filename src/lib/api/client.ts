@@ -282,11 +282,12 @@ let clientInstance: KeygenClient | null = null;
 
 export function getKeygenClient(): KeygenClient {
   if (!clientInstance) {
-    const apiUrl = process.env.NEXT_PUBLIC_KEYGEN_API_URL;
-    const accountId = process.env.NEXT_PUBLIC_KEYGEN_ACCOUNT_ID;
+    const apiUrl = process.env.NEXT_PUBLIC_KEYGEN_API_URL ?? process.env.KEYGEN_API_URL;
+    const accountId =
+      process.env.NEXT_PUBLIC_KEYGEN_ACCOUNT_ID ?? process.env.KEYGEN_ACCOUNT_ID;
 
     if (!apiUrl || !accountId) {
-      throw new Error('Missing required environment variables: NEXT_PUBLIC_KEYGEN_API_URL and NEXT_PUBLIC_KEYGEN_ACCOUNT_ID');
+      throw new Error('Missing required environment variables: KEYGEN_API_URL/NEXT_PUBLIC_KEYGEN_API_URL and KEYGEN_ACCOUNT_ID/NEXT_PUBLIC_KEYGEN_ACCOUNT_ID');
     }
 
     clientInstance = new KeygenClient({
