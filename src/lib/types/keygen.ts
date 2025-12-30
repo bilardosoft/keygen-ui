@@ -149,7 +149,7 @@ export interface Machine extends KeygenResource {
     disk?: number;
     ip?: string;
     requireHeartbeat: boolean;
-    heartbeatStatus: 'alive' | 'dead' | 'not-started';
+    heartbeatStatus: 'NOT_STARTED' | 'ALIVE' | 'DEAD' | 'RESURRECTED';
     heartbeatDuration?: number;
     lastHeartbeat?: string;
     nextHeartbeat?: string | null;
