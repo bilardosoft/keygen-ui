@@ -117,7 +117,7 @@ export function MachineManagement() {
       case 'DEAD': return 'Offline'
       case 'NOT_STARTED': return 'Not Started'
       case 'RESURRECTED': return 'Resurrected'
-      default: return heartbeatStatus.replace('_', ' ').toLowerCase()
+      default: return heartbeatStatus.replaceAll('_', ' ').toLowerCase()
     }
   }
 
