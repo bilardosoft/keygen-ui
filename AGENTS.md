@@ -8,8 +8,9 @@ This file orients agentic tools (LLMs) to this repository. It provides reading o
   1) `docs/project-documentation.md` — architecture, setup, conventions
   2) `docs/implementation-plan.md` — canonical implementation plan and priorities
   3) `docs/keygen-api-configuration.md` — Keygen API integration guide
-  4) `README.md` — public, high‑level overview and features
-  5) Resource‑specific docs (if present) under `docs/`
+  4) `docs/policy-configuration-guide.md` — Policy configuration (maxMachines, floating, strict)
+  5) `README.md` — public, high‑level overview and features
+  6) Resource‑specific docs (if present) under `docs/`
 
 ## File Map (essentials)
 

@@ -1,6 +1,6 @@
 # Keygen UI — Project Documentation
 
-This document is the comprehensive guide to architecture, setup, conventions, and feature coverage for Keygen UI. For implementation priorities, see `docs/implementation-plan.md`. For Keygen API details, see `docs/keygen-api-configuration.md`.
+This document is the comprehensive guide to architecture, setup, conventions, and feature coverage for Keygen UI. For implementation priorities, see `docs/implementation-plan.md`. For Keygen API details, see `docs/keygen-api-configuration.md`. For policy configuration help, see `docs/policy-configuration-guide.md`.
 
 ## Overview
 
@@ -160,3 +160,4 @@ Key references:
 
 - Implementation plan (canonical): `docs/implementation-plan.md`
 - Keygen API configuration: `docs/keygen-api-configuration.md`
+- Policy configuration guide: `docs/policy-configuration-guide.md` (maxMachines, floating, strict explained)
