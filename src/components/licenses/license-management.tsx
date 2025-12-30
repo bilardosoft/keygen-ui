@@ -92,10 +92,12 @@ export function LicenseManagement() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200'
-      case 'suspended': return 'bg-orange-100 text-orange-800 border-orange-200'
-      case 'expired': return 'bg-red-100 text-red-800 border-red-200'
-      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'ACTIVE': return 'bg-green-100 text-green-800 border-green-200'
+      case 'SUSPENDED': return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'EXPIRED': 
+      case 'EXPIRING': return 'bg-red-100 text-red-800 border-red-200'
+      case 'INACTIVE': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'BANNED': return 'bg-red-900 text-white border-red-900'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
   }
@@ -191,7 +193,7 @@ export function LicenseManagement() {
           <CardContent>
             <div className="text-2xl font-bold">{licenses.length}</div>
             <p className="text-xs text-muted-foreground">
-              +12% from last month
+              Total across all statuses
             </p>
           </CardContent>
         </Card>
@@ -202,7 +204,7 @@ export function LicenseManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {licenses.filter(l => l.attributes.status === 'active').length}
+              {licenses.filter(l => l.attributes.status === 'ACTIVE').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Currently active licenses
@@ -216,7 +218,7 @@ export function LicenseManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {licenses.filter(l => l.attributes.status === 'expired').length}
+              {licenses.filter(l => l.attributes.status === 'EXPIRED' || l.attributes.status === 'EXPIRING').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Need renewal
@@ -225,15 +227,15 @@ export function LicenseManagement() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usage</CardTitle>
+            <CardTitle className="text-sm font-medium">Machines</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {licenses.reduce((acc, l) => acc + (l.attributes.uses || 0), 0)}
+              {licenses.reduce((acc, l) => acc + (l.relationships?.machines?.meta?.count || 0), 0)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total activations
+              Total activated machines
             </p>
           </CardContent>
         </Card>
@@ -259,10 +261,12 @@ export function LicenseManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="SUSPENDED">Suspended</SelectItem>
+            <SelectItem value="EXPIRED">Expired</SelectItem>
+            <SelectItem value="EXPIRING">Expiring</SelectItem>
+            <SelectItem value="INACTIVE">Inactive</SelectItem>
+            <SelectItem value="BANNED">Banned</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -287,7 +291,7 @@ export function LicenseManagement() {
                   <TableHead>License Key</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Usage</TableHead>
+                  <TableHead>Machines</TableHead>
                   <TableHead>Expiry</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="w-[70px]">Actions</TableHead>
@@ -322,8 +326,16 @@ export function LicenseManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {license.attributes.uses || 0}
-                      {license.attributes.maxUses ? ` / ${license.attributes.maxUses}` : ''}
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          {license.relationships?.machines?.meta?.count || 0}
+                        </span>
+                        {license.attributes.maxMachines && (
+                          <span className="text-muted-foreground text-xs">
+                            / {license.attributes.maxMachines}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {license.attributes.expiry 
@@ -352,7 +364,7 @@ export function LicenseManagement() {
                             <Download className="mr-2 h-4 w-4" />
                             Generate Token
                           </DropdownMenuItem>
-                          {license.attributes.status === 'active' ? (
+                          {license.attributes.status === 'ACTIVE' ? (
                             <DropdownMenuItem 
                               onClick={() => handleSuspendLicense(license)}
                             >
@@ -367,7 +379,7 @@ export function LicenseManagement() {
                               Reinstate
                             </DropdownMenuItem>
                           )}
-                          {license.attributes.status === 'expired' && (
+                          {(license.attributes.status === 'EXPIRED' || license.attributes.status === 'EXPIRING') && (
                             <DropdownMenuItem 
                               onClick={() => handleRenewLicense(license)}
                             >

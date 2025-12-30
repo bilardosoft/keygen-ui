@@ -95,7 +95,7 @@ export interface License extends KeygenResource {
   attributes: {
     name?: string;
     key: string;
-    status: 'active' | 'inactive' | 'expired' | 'suspended' | 'banned';
+    status: 'ACTIVE' | 'INACTIVE' | 'EXPIRING' | 'EXPIRED' | 'SUSPENDED' | 'BANNED';
     uses: number;
     maxUses?: number;
     maxMachines?: number;
@@ -114,6 +114,25 @@ export interface License extends KeygenResource {
     metadata?: Record<string, unknown>;
     created: string;
     updated: string;
+  };
+  relationships?: {
+    account?: KeygenRelationship;
+    product?: KeygenRelationship;
+    policy?: KeygenRelationship;
+    group?: KeygenRelationship;
+    owner?: KeygenRelationship;
+    users?: KeygenRelationship & {
+      meta?: {
+        count?: number;
+      };
+    };
+    machines?: KeygenRelationship & {
+      meta?: {
+        count?: number;
+      };
+    };
+    tokens?: KeygenRelationship;
+    entitlements?: KeygenRelationship;
   };
 }
 
@@ -363,6 +382,7 @@ export interface LicenseFilters extends PaginationOptions {
   group?: string;
   product?: string;
   status?: License['attributes']['status'];
+  metadata?: Record<string, unknown>;
 }
 
 export interface MachineFilters extends PaginationOptions {
