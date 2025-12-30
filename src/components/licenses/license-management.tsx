@@ -91,8 +91,7 @@ export function LicenseManagement() {
   })
 
   const getStatusColor = (status: string) => {
-    const upperStatus = status.toUpperCase()
-    switch (upperStatus) {
+    switch (status) {
       case 'ACTIVE': return 'bg-green-100 text-green-800 border-green-200'
       case 'SUSPENDED': return 'bg-orange-100 text-orange-800 border-orange-200'
       case 'EXPIRED': 
@@ -194,7 +193,7 @@ export function LicenseManagement() {
           <CardContent>
             <div className="text-2xl font-bold">{licenses.length}</div>
             <p className="text-xs text-muted-foreground">
-              All licenses in account
+              Total across all statuses
             </p>
           </CardContent>
         </Card>
