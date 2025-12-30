@@ -286,18 +286,26 @@ export function PolicyManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm space-y-1">
-                        {[
-                          { label: 'Machines', value: attrs.maxMachines },
-                          { label: 'Processes', value: attrs.maxProcesses },
-                          { label: 'Cores', value: attrs.maxCores },
-                          { label: 'Uses', value: attrs.maxUses },
-                        ]
-                          .filter(({ value }) => value != null)
-                          .map(({ label, value }) => (
+                        {(() => {
+                          const limits = [
+                            { label: 'Machines', value: attrs.maxMachines },
+                            { label: 'Processes', value: attrs.maxProcesses },
+                            { label: 'Cores', value: attrs.maxCores },
+                            { label: 'Uses', value: attrs.maxUses },
+                          ].filter(({ value }) => value != null)
+                          
+                          if (limits.length === 0) {
+                            return (
+                              <span className="text-muted-foreground">No limits set</span>
+                            )
+                          }
+                          
+                          return limits.map(({ label, value }) => (
                             <div key={label}>
                               {label}: {value}
                             </div>
-                          ))}
+                          ))
+                        })()}
                       </div>
                     </TableCell>
                     <TableCell>

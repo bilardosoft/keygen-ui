@@ -408,6 +408,19 @@ export function CreatePolicyDialog({
       }
     }
 
+    // Validate maxMachines based on floating policy
+    const maxMachinesValue = numberFromInput(formData.maxMachines)
+    if (maxMachinesValue !== undefined) {
+      if (maxMachinesValue <= 0) {
+        toast.error('Max machines must be greater than 0')
+        return
+      }
+      if (!formData.floating && maxMachinesValue !== 1) {
+        toast.error('Non-floating policies must have maxMachines set to 1. Enable "Floating license" to allow multiple machines.')
+        return
+      }
+    }
+
     const payload = buildPayload()
 
     try {
@@ -734,12 +747,23 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxMachines"
                   type="number"
+                  min="1"
                   placeholder="e.g., 5"
                   value={formData.maxMachines}
                   onChange={(e) =>
                     setFormData({ ...formData, maxMachines: e.target.value })
                   }
                 />
+                {!formData.floating && (
+                  <p className="text-xs text-amber-600">
+                    Non-floating policies require maxMachines to be 1. Enable "Floating license" above for multiple machines.
+                  </p>
+                )}
+                {formData.floating && (
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty for unlimited machines (floating licenses only).
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxProcesses">Max Processes</Label>
@@ -747,6 +771,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxProcesses"
                   type="number"
+                  min="1"
                   placeholder="e.g., 3"
                   value={formData.maxProcesses}
                   onChange={(e) =>
@@ -760,6 +785,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxCores"
                   type="number"
+                  min="1"
                   placeholder="e.g., 16"
                   value={formData.maxCores}
                   onChange={(e) => setFormData({ ...formData, maxCores: e.target.value })}
@@ -771,6 +797,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxUses"
                   type="number"
+                  min="1"
                   placeholder="e.g., 100"
                   value={formData.maxUses}
                   onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
@@ -782,6 +809,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxMemory"
                   type="number"
+                  min="1"
                   placeholder="e.g., 17179869184"
                   value={formData.maxMemory}
                   onChange={(e) => setFormData({ ...formData, maxMemory: e.target.value })}
@@ -793,6 +821,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxDisk"
                   type="number"
+                  min="1"
                   placeholder="e.g., 536870912000"
                   value={formData.maxDisk}
                   onChange={(e) => setFormData({ ...formData, maxDisk: e.target.value })}
@@ -804,6 +833,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxUsers"
                   type="number"
+                  min="1"
                   placeholder="e.g., 10"
                   value={formData.maxUsers}
                   onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
