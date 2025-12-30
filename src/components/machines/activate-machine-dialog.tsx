@@ -67,7 +67,7 @@ export function ActivateMachineDialog({ onMachineActivated }: ActivateMachineDia
         api.groups.list({ limit: 100 }),
       ])
       setLicenses(licensesResponse.data?.filter(license => 
-        license.attributes.status === 'active'
+        license.attributes.status === 'ACTIVE'
       ) || [])
       setUsers(usersResponse.data || [])
       setGroups(groupsResponse.data || [])

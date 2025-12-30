@@ -187,7 +187,7 @@ export function GroupDetailsDialog({
                           {license.attributes.key}
                         </p>
                       </div>
-                      <Badge variant={license.attributes.status === 'active' ? 'default' : 'secondary'}>
+                      <Badge variant={license.attributes.status === 'ACTIVE' ? 'default' : 'secondary'}>
                         {license.attributes.status}
                       </Badge>
                     </div>
