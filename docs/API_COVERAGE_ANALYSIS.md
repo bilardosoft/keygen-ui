@@ -84,6 +84,7 @@ The following API documentation files have been added to `keygen-api/`:
    - Documents offline licensing and cryptographic operations
    - Covers cryptographic license files and keys
    - Status: **Reference documentation only**
+   - Note: Filename has typo ("licensesing" should be "licensing")
 
 ### 📋 Resources with Implementation but Previously Lacking Documentation
 
