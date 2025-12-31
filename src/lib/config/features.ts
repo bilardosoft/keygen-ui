@@ -1,10 +1,12 @@
 /**
  * Feature flags based on Keygen edition (EE vs CE)
  * 
- * Features that are only available in Keygen EE/Cloud but not in CE:
- * - Request Logs (Beta)
- * - Event Logs (Beta)
- * - Environments (depending on configuration)
+ * Features that are only available in Keygen EE/Cloud but NOT in CE:
+ * - Request Logs (Beta) - EE/Cloud only
+ * - Event Logs (Beta) - EE/Cloud only
+ * 
+ * Features available in ALL editions (CE, EE, Cloud):
+ * - Environments - Available in all editions
  */
 
 export type KeygenEdition = 'EE' | 'CE' | 'CLOUD' | null
@@ -12,7 +14,6 @@ export type KeygenEdition = 'EE' | 'CE' | 'CLOUD' | null
 export interface EditionFeatures {
   requestLogs: boolean
   eventLogs: boolean
-  environments: boolean
 }
 
 /**
@@ -24,7 +25,6 @@ export function getEditionFeatures(edition: KeygenEdition): EditionFeatures {
     return {
       requestLogs: false,
       eventLogs: false,
-      environments: false, // May be available depending on CE configuration
     }
   }
 
@@ -33,7 +33,6 @@ export function getEditionFeatures(edition: KeygenEdition): EditionFeatures {
   return {
     requestLogs: true,
     eventLogs: true,
-    environments: true,
   }
 }
 

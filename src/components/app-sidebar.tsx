@@ -85,7 +85,6 @@ const data = {
       title: "Environments",
       url: "/environments",
       icon: IconGlobe,
-      requiresFeature: 'environments' as const,
     },
     {
       title: "Entitlements",
