@@ -326,6 +326,24 @@ export interface RequestLog extends KeygenResource {
   };
 }
 
+// Event Log
+export interface EventLog extends KeygenResource {
+  type: 'event-logs';
+  attributes: {
+    event: string;
+    metadata?: Record<string, unknown>;
+    created: string;
+    updated: string;
+  };
+  relationships?: {
+    account?: KeygenRelationship;
+    environment?: KeygenRelationship;
+    request?: KeygenRelationship;
+    whodunnit?: KeygenRelationship;
+    resource?: KeygenRelationship;
+  };
+}
+
 // Webhook
 export interface Webhook extends KeygenResource {
   type: 'webhook-endpoints';
