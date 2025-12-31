@@ -765,7 +765,7 @@ export function CreatePolicyDialog({
                 />
                 {!formData.floating && (
                   <p className="text-xs text-amber-600">
-                    ⚠️ Non-floating policies require maxMachines to be exactly 1. Enable "Floating license" above for multiple machines.
+                    ⚠️ Non-floating policies require maxMachines to be exactly 1. Enable &quot;Floating license&quot; above for multiple machines.
                   </p>
                 )}
                 {formData.floating && formData.maxMachines === '' && (

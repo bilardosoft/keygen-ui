@@ -19,7 +19,7 @@ export function useEditionDetection() {
     api.setEditionCallback((edition: string) => {
       // Normalize edition value
       const normalizedEdition = edition.toUpperCase() as KeygenEdition
-      if (['EE', 'CE', 'CLOUD'].includes(normalizedEdition)) {
+      if (normalizedEdition && ['EE', 'CE', 'CLOUD'].includes(normalizedEdition)) {
         setEdition(normalizedEdition)
       }
     })

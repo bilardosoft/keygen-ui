@@ -33,6 +33,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useEdition } from "@/lib/config/edition-context"
+import { EditionFeatures } from "@/lib/config/features"
 
 const data = {
   navMain: [
@@ -128,14 +129,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Filter nav items based on feature availability
   const filteredNavMain = data.navMain.filter(item => {
     if ('requiresFeature' in item && item.requiresFeature) {
-      return isFeatureAvailable(item.requiresFeature)
+      return isFeatureAvailable(item.requiresFeature as keyof EditionFeatures)
     }
     return true
   })
 
   const filteredNavSecondary = data.navSecondary.filter(item => {
     if ('requiresFeature' in item && item.requiresFeature) {
-      return isFeatureAvailable(item.requiresFeature)
+      return isFeatureAvailable(item.requiresFeature as keyof EditionFeatures)
     }
     return true
   })
