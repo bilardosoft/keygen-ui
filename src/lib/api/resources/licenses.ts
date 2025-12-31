@@ -351,4 +351,147 @@ export class LicenseResource {
       body,
     });
   }
+
+  /**
+   * Validate a license by ID
+   */
+  async validate(
+    id: string,
+    options?: {
+      nonce?: number;
+      scope?: {
+        product?: string;
+        policy?: string;
+        fingerprints?: string[];
+        fingerprint?: string;
+        components?: string[];
+        machine?: string;
+        user?: string;
+        entitlements?: string[];
+        version?: string;
+        checksum?: string;
+      };
+    }
+  ): Promise<KeygenResponse<License>> {
+    const body: Record<string, unknown> = {};
+
+    if (options?.nonce !== undefined || options?.scope) {
+      body.meta = {};
+      if (options.nonce !== undefined) {
+        (body.meta as Record<string, unknown>).nonce = options.nonce;
+      }
+      if (options.scope) {
+        (body.meta as Record<string, unknown>).scope = options.scope;
+      }
+    }
+
+    return this.client.request<License>(`licenses/${id}/actions/validate`, {
+      method: 'POST',
+      ...(Object.keys(body).length > 0 && { body }),
+    });
+  }
+
+  /**
+   * Validate a license by key
+   */
+  async validateKey(
+    key: string,
+    options?: {
+      nonce?: number;
+      scope?: {
+        product?: string;
+        policy?: string;
+        fingerprints?: string[];
+        fingerprint?: string;
+        components?: string[];
+        machine?: string;
+        user?: string;
+        entitlements?: string[];
+        version?: string;
+        checksum?: string;
+      };
+    }
+  ): Promise<KeygenResponse<License>> {
+    const body: Record<string, unknown> = {
+      meta: {
+        key,
+      },
+    };
+
+    if (options?.nonce !== undefined) {
+      (body.meta as Record<string, unknown>).nonce = options.nonce;
+    }
+    if (options?.scope) {
+      (body.meta as Record<string, unknown>).scope = options.scope;
+    }
+
+    return this.client.request<License>('licenses/actions/validate-key', {
+      method: 'POST',
+      body,
+    });
+  }
+
+  /**
+   * Revoke a license permanently
+   */
+  async revoke(id: string): Promise<KeygenResponse<License>> {
+    return this.client.request<License>(`licenses/${id}/actions/revoke`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Check out a license for offline use
+   */
+  async checkOut(
+    id: string,
+    options?: {
+      ttl?: number;
+      include?: string[];
+      encrypt?: boolean;
+    }
+  ): Promise<KeygenResponse<License>> {
+    const body: Record<string, unknown> = {};
+
+    if (options) {
+      body.meta = {};
+      if (options.ttl !== undefined) {
+        (body.meta as Record<string, unknown>).ttl = options.ttl;
+      }
+      if (options.include) {
+        (body.meta as Record<string, unknown>).include = options.include;
+      }
+      if (options.encrypt !== undefined) {
+        (body.meta as Record<string, unknown>).encrypt = options.encrypt;
+      }
+    }
+
+    return this.client.request<License>(`licenses/${id}/actions/check-out`, {
+      method: 'POST',
+      ...(Object.keys(body).length > 0 && { body }),
+    });
+  }
+
+  /**
+   * Check in a previously checked-out license
+   */
+  async checkIn(id: string): Promise<KeygenResponse<License>> {
+    return this.client.request<License>(`licenses/${id}/actions/check-in`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Increment license usage counter
+   */
+  async incrementUsage(id: string, increment = 1): Promise<KeygenResponse<License>> {
+    const body = {
+      meta: { increment },
+    };
+
+    return this.client.request<License>(`licenses/${id}/actions/increment-usage`, {
+      method: 'POST',
+      body,
+    });
+  }
 }

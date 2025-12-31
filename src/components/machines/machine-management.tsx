@@ -84,28 +84,40 @@ export function MachineManagement() {
       machine.attributes.ip?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'active' && machine.attributes.heartbeatStatus === 'alive') ||
-      (statusFilter === 'inactive' && machine.attributes.heartbeatStatus === 'dead') ||
-      (statusFilter === 'not-started' && machine.attributes.heartbeatStatus === 'not-started')
+      (statusFilter === 'active' && machine.attributes.heartbeatStatus === 'ALIVE') ||
+      (statusFilter === 'inactive' && machine.attributes.heartbeatStatus === 'DEAD') ||
+      (statusFilter === 'not-started' && machine.attributes.heartbeatStatus === 'NOT_STARTED')
     
     return matchesSearch && matchesStatus
   })
 
   const getStatusColor = (heartbeatStatus: string) => {
     switch (heartbeatStatus) {
-      case 'alive': return 'bg-green-100 text-green-800 border-green-200'
-      case 'dead': return 'bg-red-100 text-red-800 border-red-200'
-      case 'not-started': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'ALIVE': return 'bg-green-100 text-green-800 border-green-200'
+      case 'DEAD': return 'bg-red-100 text-red-800 border-red-200'
+      case 'NOT_STARTED': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'RESURRECTED': return 'bg-blue-100 text-blue-800 border-blue-200'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
   }
 
   const getStatusIcon = (heartbeatStatus: string) => {
     switch (heartbeatStatus) {
-      case 'alive': return <CheckCircle className="h-3 w-3" />
-      case 'dead': return <AlertCircle className="h-3 w-3" />
-      case 'not-started': return <Activity className="h-3 w-3" />
+      case 'ALIVE': return <CheckCircle className="h-3 w-3" />
+      case 'DEAD': return <AlertCircle className="h-3 w-3" />
+      case 'NOT_STARTED': return <Activity className="h-3 w-3" />
+      case 'RESURRECTED': return <CheckCircle className="h-3 w-3" />
       default: return <Activity className="h-3 w-3" />
+    }
+  }
+
+  const formatStatusText = (heartbeatStatus: string) => {
+    switch (heartbeatStatus) {
+      case 'ALIVE': return 'Active'
+      case 'DEAD': return 'Offline'
+      case 'NOT_STARTED': return 'Not Started'
+      case 'RESURRECTED': return 'Resurrected'
+      default: return heartbeatStatus.replaceAll('_', ' ').toLowerCase()
     }
   }
 
@@ -186,7 +198,7 @@ export function MachineManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {machines.filter(m => m.attributes.heartbeatStatus === 'alive').length}
+              {machines.filter(m => m.attributes.heartbeatStatus === 'ALIVE' || m.attributes.heartbeatStatus === 'RESURRECTED').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Currently online
@@ -195,12 +207,12 @@ export function MachineManagement() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive</CardTitle>
+            <CardTitle className="text-sm font-medium">Offline</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {machines.filter(m => m.attributes.heartbeatStatus === 'dead').length}
+              {machines.filter(m => m.attributes.heartbeatStatus === 'DEAD').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Offline machines
@@ -214,7 +226,7 @@ export function MachineManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {machines.filter(m => m.attributes.heartbeatStatus === 'not-started').length}
+              {machines.filter(m => m.attributes.heartbeatStatus === 'NOT_STARTED').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Never activated
@@ -303,7 +315,7 @@ export function MachineManagement() {
                         className={`${getStatusColor(machine.attributes.heartbeatStatus)} flex items-center gap-1 w-fit`}
                       >
                         {getStatusIcon(machine.attributes.heartbeatStatus)}
-                        {machine.attributes.heartbeatStatus?.replace('_', ' ').toLowerCase()}
+                        {formatStatusText(machine.attributes.heartbeatStatus)}
                       </Badge>
                     </TableCell>
                     <TableCell>

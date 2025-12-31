@@ -149,7 +149,7 @@ export interface Machine extends KeygenResource {
     disk?: number;
     ip?: string;
     requireHeartbeat: boolean;
-    heartbeatStatus: 'alive' | 'dead' | 'not-started';
+    heartbeatStatus: 'NOT_STARTED' | 'ALIVE' | 'DEAD' | 'RESURRECTED';
     heartbeatDuration?: number;
     lastHeartbeat?: string;
     nextHeartbeat?: string | null;
@@ -323,6 +323,24 @@ export interface RequestLog extends KeygenResource {
     requestBody?: unknown;
     responseBody?: unknown;
     created: string;
+  };
+}
+
+// Event Log
+export interface EventLog extends KeygenResource {
+  type: 'event-logs';
+  attributes: {
+    event: string;
+    metadata?: Record<string, unknown>;
+    created: string;
+    updated: string;
+  };
+  relationships?: {
+    account?: KeygenRelationship;
+    environment?: KeygenRelationship;
+    request?: KeygenRelationship;
+    whodunnit?: KeygenRelationship;
+    resource?: KeygenRelationship;
   };
 }
 

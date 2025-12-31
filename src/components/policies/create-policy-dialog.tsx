@@ -408,6 +408,22 @@ export function CreatePolicyDialog({
       }
     }
 
+    // Validate maxMachines based on floating policy
+    const maxMachinesValue = numberFromInput(formData.maxMachines)
+    if (!formData.floating) {
+      // Non-floating policies MUST have maxMachines = 1
+      if (maxMachinesValue === undefined || maxMachinesValue !== 1) {
+        toast.error('Non-floating policies must have maxMachines set to exactly 1. Enable "Floating license" to allow multiple machines.')
+        return
+      }
+    } else {
+      // Floating policies can have maxMachines undefined (unlimited) or > 0
+      if (maxMachinesValue !== undefined && maxMachinesValue <= 0) {
+        toast.error('Max machines must be greater than 0')
+        return
+      }
+    }
+
     const payload = buildPayload()
 
     try {
@@ -531,9 +547,15 @@ export function CreatePolicyDialog({
                 <Checkbox
                   id="floating"
                   checked={formData.floating}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, floating: !!checked })
-                  }
+                  onCheckedChange={(checked) => {
+                    const isFloating = !!checked
+                    setFormData({ 
+                      ...formData, 
+                      floating: isFloating,
+                      // Set maxMachines to "1" when disabling floating, clear when enabling
+                      maxMachines: isFloating ? formData.maxMachines : '1'
+                    })
+                  }}
                 />
                 <Label htmlFor="floating">Floating license</Label>
                 <p className="text-xs text-muted-foreground">Allow seats to be leased and returned instead of permanently bound.</p>
@@ -734,12 +756,23 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxMachines"
                   type="number"
+                  min="1"
                   placeholder="e.g., 5"
                   value={formData.maxMachines}
                   onChange={(e) =>
                     setFormData({ ...formData, maxMachines: e.target.value })
                   }
                 />
+                {!formData.floating && (
+                  <p className="text-xs text-amber-600">
+                    ⚠️ Non-floating policies require maxMachines to be exactly 1. Enable "Floating license" above for multiple machines.
+                  </p>
+                )}
+                {formData.floating && formData.maxMachines === '' && (
+                  <p className="text-xs text-blue-600">
+                    💡 Leave empty for unlimited machines on floating licenses.
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxProcesses">Max Processes</Label>
@@ -747,6 +780,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxProcesses"
                   type="number"
+                  min="1"
                   placeholder="e.g., 3"
                   value={formData.maxProcesses}
                   onChange={(e) =>
@@ -760,6 +794,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxCores"
                   type="number"
+                  min="1"
                   placeholder="e.g., 16"
                   value={formData.maxCores}
                   onChange={(e) => setFormData({ ...formData, maxCores: e.target.value })}
@@ -771,6 +806,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxUses"
                   type="number"
+                  min="1"
                   placeholder="e.g., 100"
                   value={formData.maxUses}
                   onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
@@ -804,6 +840,7 @@ export function CreatePolicyDialog({
                 <Input
                   id="maxUsers"
                   type="number"
+                  min="1"
                   placeholder="e.g., 10"
                   value={formData.maxUsers}
                   onChange={(e) => setFormData({ ...formData, maxUsers: e.target.value })}
