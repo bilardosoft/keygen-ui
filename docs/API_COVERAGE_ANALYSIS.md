@@ -9,7 +9,6 @@ This document compares the Keygen API documentation (in `keygen-api/*.md`) with 
 - **Groups** - All CRUD operations + relationships (licenses, users)
 - **Environments** - All CRUD operations
 - **Components** - All CRUD operations
-- **Entitlements** - All CRUD operations + relationships (licenses) ⚠️ No API doc provided
 
 ### ⚠️ Partially Implemented Resources
 
@@ -84,18 +83,20 @@ These resources are implemented but don't have corresponding API documentation f
 The following license actions are documented in the API but not implemented:
 
 1. **validate** (`POST /licenses/:id/actions/validate`)
-   - Validates a license with validation codes
-   - Returns validation result
+   - Validates a license and returns validation result
+   - Used to check if license is valid for use
 
 2. **validate-key** (`POST /licenses/actions/validate-key`)
-   - Validates a license by its key
+   - Validates a license by its key (not ID)
    - Returns license data and validation result
 
 3. **validate-codes** (`POST /licenses/:id/actions/validate-codes`)
-   - Validates specific validation codes
+   - Validates with specific validation/entitlement codes
+   - More granular than basic validate
 
 4. **validate-key-codes** (`POST /licenses/actions/validate-key-codes`)
-   - Validates a license by key with specific codes
+   - Validates by key with specific validation codes
+   - Combines validate-key and validate-codes
 
 5. **revoke** (`POST /licenses/:id/actions/revoke`)
    - Revokes a license permanently
@@ -157,25 +158,25 @@ The following license actions are documented in the API but not implemented:
 
 | Resource | CRUD | Actions | Relationships | Documentation |
 |----------|------|---------|---------------|---------------|
-| Users | ✅ | ✅ | ✅ | ✅ |
+| Users | ✅ | ✅ Full | ✅ | ✅ |
 | Groups | ✅ | N/A | ✅ | ✅ |
-| Licenses | ✅ | ⚠️ 60% | ✅ | ✅ |
-| Machines | ✅ | ✅ | ✅ | ✅ |
-| Policies | ✅ | ⚠️ 95% | ✅ | ✅ |
-| Products | ✅ | ✅ | N/A | ✅ |
+| Licenses | ✅ | ⚠️ Partial | ✅ | ✅ |
+| Machines | ✅ | ✅ Full | ✅ | ✅ |
+| Policies | ✅ | ⚠️ Partial | ✅ | ✅ |
+| Products | ✅ | ✅ Full | N/A | ✅ |
 | Environments | ✅ | N/A | N/A | ✅ |
-| Processes | ✅ | ✅ | N/A | ✅ |
+| Processes | ✅ | ✅ Full | N/A | ✅ |
 | Components | ✅ | N/A | N/A | ✅ |
 | Entitlements | ✅ | N/A | ✅ | ❌ |
-| Request Logs | ⚠️ | N/A | N/A | ❌ |
-| Webhooks | ⚠️ | N/A | N/A | ❌ |
+| Request Logs | ⚠️ Partial | N/A | N/A | ❌ |
+| Webhooks | ⚠️ Partial | N/A | N/A | ❌ |
 
 ## Notes
 
 - **CRUD** = Create, Read, Update, Delete operations
 - **Actions** = Special API actions beyond CRUD (validate, suspend, etc.)
-- **Relationships** = Managing relationships between resources
-- **⚠️** = Partially implemented (missing some features)
-- **✅** = Fully implemented
+- **Relationships** = Managing relationships between resources (included in Groups implementation)
+- **⚠️ Partial** = Some features missing (see details above)
+- **✅ Full** = Fully implemented
 - **❌** = Not implemented or documented
 - **N/A** = Not applicable (API doesn't have this for the resource)
