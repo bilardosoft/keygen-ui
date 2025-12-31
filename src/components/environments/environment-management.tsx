@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { handleCrudError, handleLoadError } from '@/lib/utils/error-handling'
-import { Edit, MoreVertical, Plus, Trash2 } from 'lucide-react'
+import { handleCrudError, handleOptionalFeatureError } from '@/lib/utils/error-handling'
+import { Edit, MoreVertical, Plus, Trash2, Lock } from 'lucide-react'
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : '—')
 
@@ -21,15 +21,22 @@ export function EnvironmentManagement() {
   const api = getKeygenApi()
   const [environments, setEnvironments] = useState<Environment[]>([])
   const [loading, setLoading] = useState(true)
+  const [featureUnavailable, setFeatureUnavailable] = useState(false)
   const [editEnv, setEditEnv] = useState<Environment | null>(null)
 
   const loadEnvironments = useCallback(async () => {
     try {
       setLoading(true)
+      setFeatureUnavailable(false)
       const res = await api.environments.list({ limit: 50 })
       setEnvironments(res.data || [])
     } catch (error: unknown) {
-      handleLoadError(error, 'environments')
+      const isUnavailable = handleOptionalFeatureError(error, "environments", {
+        onUnavailable: () => setFeatureUnavailable(true)
+      })
+      if (!isUnavailable) {
+        setEnvironments([])
+      }
     } finally {
       setLoading(false)
     }
@@ -47,6 +54,32 @@ export function EnvironmentManagement() {
     } catch (error: unknown) {
       handleCrudError(error, 'delete', 'Environment')
     }
+  }
+
+  if (featureUnavailable) {
+    return (
+      <div className="space-y-6 px-4 lg:px-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Environments</h1>
+          <p className="text-muted-foreground">
+            Segment resources by environment (sandbox, production)
+          </p>
+        </div>
+        <Card>
+          <CardContent className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-8">
+            <Lock className="h-16 w-16 text-muted-foreground opacity-50" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold">Environments Not Available</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This feature may not be included in your current Keygen plan.
+                <br />
+                Contact your Keygen administrator to enable environment isolation.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
