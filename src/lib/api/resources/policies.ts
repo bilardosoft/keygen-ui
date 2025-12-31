@@ -148,4 +148,14 @@ export class PolicyResource {
       method: 'DELETE'
     });
   }
+
+  /**
+   * Pop a license key from the policy pool
+   * Only works for policies with usePool=true
+   */
+  async popKey(policyId: string): Promise<KeygenResponse<{ key: string }>> {
+    return this.client.request<{ key: string }>(`/policies/${policyId}/pool`, {
+      method: 'DELETE'
+    });
+  }
 }
