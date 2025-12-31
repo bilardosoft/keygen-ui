@@ -67,6 +67,13 @@ export class KeygenApi {
   }
 
   /**
+   * Set callback to handle Keygen edition detection from response headers
+   */
+  setEditionCallback(callback: (edition: string) => void): void {
+    this.client.setEditionCallback(callback);
+  }
+
+  /**
    * Authenticate with email and password
    */
   async authenticate(email: string, password: string, tokenName = 'Keygen UI Token'): Promise<string> {

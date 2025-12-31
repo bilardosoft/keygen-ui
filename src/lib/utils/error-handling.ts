@@ -242,3 +242,36 @@ export function getRetryDelay(error: unknown): number {
 
   return 1000 // 1 second default
 }
+
+/**
+ * Handle errors for optional/premium features that may not be available
+ * Returns true if the feature is unavailable (404), false otherwise
+ */
+export function handleOptionalFeatureError(
+  error: unknown,
+  featureName: string,
+  options?: {
+    silent?: boolean
+    onUnavailable?: () => void
+  }
+): boolean {
+  // Check if this is a 404 "not found" error, which typically means
+  // the feature is not available in the user's plan
+  if (isNotFoundError(error)) {
+    console.info(`${featureName} feature is not available in this account`)
+    
+    if (options?.onUnavailable) {
+      options.onUnavailable()
+    }
+    
+    // Don't show error toast for optional features that aren't available
+    return true
+  }
+
+  // For other errors (network, auth, etc.), use standard error handling
+  if (!options?.silent) {
+    handleLoadError(error, featureName, { silent: false })
+  }
+  
+  return false
+}

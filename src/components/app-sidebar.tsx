@@ -32,6 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useEdition } from "@/lib/config/edition-context"
 
 const data = {
   navMain: [
@@ -106,6 +107,7 @@ const data = {
       title: "Analytics",
       url: "/analytics",
       icon: IconReportAnalytics,
+      requiresFeature: 'requestLogs' as const,
     },
     {
       title: "Settings",
@@ -121,6 +123,23 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { isFeatureAvailable } = useEdition()
+
+  // Filter nav items based on feature availability
+  const filteredNavMain = data.navMain.filter(item => {
+    if ('requiresFeature' in item && item.requiresFeature) {
+      return isFeatureAvailable(item.requiresFeature)
+    }
+    return true
+  })
+
+  const filteredNavSecondary = data.navSecondary.filter(item => {
+    if ('requiresFeature' in item && item.requiresFeature) {
+      return isFeatureAvailable(item.requiresFeature)
+    }
+    return true
+  })
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -139,8 +158,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={filteredNavMain} />
+        <NavSecondary items={filteredNavSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

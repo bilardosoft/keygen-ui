@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { IconRefresh } from "@tabler/icons-react"
+import { IconRefresh, IconLock } from "@tabler/icons-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { getKeygenApi } from "@/lib/api"
 import { RequestLog } from "@/lib/types/keygen"
-import { handleLoadError } from "@/lib/utils/error-handling"
+import { handleOptionalFeatureError } from "@/lib/utils/error-handling"
 
 export const description = "API request volume from Keygen logs"
 
@@ -51,6 +51,7 @@ export function ChartAreaInteractive() {
   const [logs, setLogs] = useState<RequestLog[]>([])
   const [chartData, setChartData] = useState<Array<{ date: string; requests: number }>>([])
   const [loading, setLoading] = useState(true)
+  const [featureUnavailable, setFeatureUnavailable] = useState(false)
 
   useEffect(() => {
     if (isMobile) {
@@ -61,6 +62,7 @@ export function ChartAreaInteractive() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
+      setFeatureUnavailable(false)
       const response = await api.requestLogs.list({ limit: 200 })
       const data = (response.data || []).filter((log): log is RequestLog => Boolean(log?.attributes?.created))
       const sortedLogs = [...data].sort(
@@ -80,9 +82,13 @@ export function ChartAreaInteractive() {
 
       setChartData(points)
     } catch (error) {
-      handleLoadError(error, "request logs")
-      setLogs([])
-      setChartData([])
+      const isUnavailable = handleOptionalFeatureError(error, "request logs", {
+        onUnavailable: () => setFeatureUnavailable(true)
+      })
+      if (!isUnavailable) {
+        setLogs([])
+        setChartData([])
+      }
     } finally {
       setLoading(false)
     }
@@ -116,14 +122,20 @@ export function ChartAreaInteractive() {
       <CardHeader>
         <CardTitle>API Request Volume</CardTitle>
         <CardDescription className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span>{loading ? "Loading request data…" : `${summary.total} requests in range`}</span>
-          <span aria-hidden>•</span>
-          <span>{summary.errors} errors</span>
-          <span aria-hidden>•</span>
-          <span>
-            Last request:{" "}
-            {summary.latest ? new Date(summary.latest).toLocaleString() : "—"}
-          </span>
+          {featureUnavailable ? (
+            <span>Request logs are not available in your current plan</span>
+          ) : (
+            <>
+              <span>{loading ? "Loading request data…" : `${summary.total} requests in range`}</span>
+              <span aria-hidden>•</span>
+              <span>{summary.errors} errors</span>
+              <span aria-hidden>•</span>
+              <span>
+                Last request:{" "}
+                {summary.latest ? new Date(summary.latest).toLocaleString() : "—"}
+              </span>
+            </>
+          )}
         </CardDescription>
         <CardAction className="flex flex-wrap items-center gap-2">
           <ToggleGroup
@@ -132,12 +144,13 @@ export function ChartAreaInteractive() {
             onValueChange={setTimeRange}
             variant="outline"
             className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
+            disabled={featureUnavailable}
           >
             <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
             <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
             <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
           </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          <Select value={timeRange} onValueChange={setTimeRange} disabled={featureUnavailable}>
             <SelectTrigger
               className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
               size="sm"
@@ -157,7 +170,7 @@ export function ChartAreaInteractive() {
               </SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={loadData} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={loadData} disabled={loading || featureUnavailable}>
             <IconRefresh className="mr-2 h-4 w-4" />
             Refresh
           </Button>
@@ -167,6 +180,16 @@ export function ChartAreaInteractive() {
         {loading ? (
           <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
             Loading request data...
+          </div>
+        ) : featureUnavailable ? (
+          <div className="flex h-[250px] flex-col items-center justify-center gap-3 text-muted-foreground">
+            <IconLock className="h-12 w-12 opacity-50" />
+            <div className="text-center">
+              <p className="font-medium text-foreground">Request Logs Not Available</p>
+              <p className="text-sm">
+                This feature may not be included in your current Keygen plan.
+              </p>
+            </div>
           </div>
         ) : filteredData.length === 0 ? (
           <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">

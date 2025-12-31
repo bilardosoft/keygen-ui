@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { getKeygenApi } from '@/lib/api';
 import { User } from '@/lib/types/keygen';
 import { handleAuthError } from '@/lib/utils/error-handling';
+import { useEditionDetection } from '@/hooks/use-edition-detection';
 
 interface AuthContextType {
   user: User | null;
@@ -24,6 +25,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Set up edition detection from API responses
+  useEditionDetection();
 
   // Check if user is authenticated on mount
   useEffect(() => {

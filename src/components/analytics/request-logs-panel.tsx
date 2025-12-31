@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { format } from "date-fns"
-import { IconRefresh } from "@tabler/icons-react"
+import { IconRefresh, IconLock } from "@tabler/icons-react"
 
 import { getKeygenApi } from "@/lib/api"
 import { RequestLog } from "@/lib/types/keygen"
-import { handleLoadError } from "@/lib/utils/error-handling"
+import { handleOptionalFeatureError } from "@/lib/utils/error-handling"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +27,7 @@ export function RequestLogsPanel() {
   const api = getKeygenApi()
   const [logs, setLogs] = useState<RequestLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [featureUnavailable, setFeatureUnavailable] = useState(false)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [methodFilter, setMethodFilter] = useState<MethodFilter>("all")
   const [search, setSearch] = useState("")
@@ -34,6 +35,7 @@ export function RequestLogsPanel() {
   const loadLogs = useCallback(async () => {
     try {
       setLoading(true)
+      setFeatureUnavailable(false)
       const response = await api.requestLogs.list({
         limit: 25,
         ...(methodFilter !== "all" && { method: methodFilter.toUpperCase() }),
@@ -49,7 +51,12 @@ export function RequestLogsPanel() {
       })
       setLogs(data)
     } catch (error: unknown) {
-      handleLoadError(error, "request logs")
+      const isUnavailable = handleOptionalFeatureError(error, "request logs", {
+        onUnavailable: () => setFeatureUnavailable(true)
+      })
+      if (!isUnavailable) {
+        setLogs([])
+      }
     } finally {
       setLoading(false)
     }
@@ -65,6 +72,22 @@ export function RequestLogsPanel() {
     const latest = logs[0]?.attributes.created
     return { total, errors, latest }
   }, [logs])
+
+  if (featureUnavailable) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 rounded-lg border border-dashed p-8">
+        <IconLock className="h-16 w-16 text-muted-foreground opacity-50" />
+        <div className="text-center">
+          <h3 className="text-lg font-semibold">Request Logs Not Available</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This feature may not be included in your current Keygen plan.
+            <br />
+            Contact your Keygen administrator to enable request logging.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">

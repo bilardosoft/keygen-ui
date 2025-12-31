@@ -29,10 +29,18 @@ type PageParams = { number?: number; size?: number };
 export class KeygenClient {
   private config: KeygenClientConfig;
   private baseApiUrl: string;
+  private editionCallback?: (edition: string) => void;
 
   constructor(config: KeygenClientConfig) {
     this.config = config;
     this.baseApiUrl = this.normalizeApiUrl(config.apiUrl);
+  }
+
+  /**
+   * Set callback to handle Keygen edition detection from response headers
+   */
+  setEditionCallback(callback: (edition: string) => void) {
+    this.editionCallback = callback;
   }
 
   /**
@@ -99,6 +107,12 @@ export class KeygenClient {
         headers: requestHeaders,
         body: body ? JSON.stringify(body) : undefined,
       });
+
+      // Capture Keygen-Edition header from response
+      const editionHeader = response.headers.get('Keygen-Edition')
+      if (editionHeader && this.editionCallback) {
+        this.editionCallback(editionHeader)
+      }
 
       // Handle JSON responses - try to parse JSON, handle empty responses gracefully
       let data = null;
